@@ -31,7 +31,7 @@ def create_app(test_config: Optional[dict] = None) -> Flask:
     app = Flask(__name__)
 
     if test_config is None:
-        app.config.from_object("mngt.config")
+        app.config.from_object("mngt.config.Config")
     else:
         app.config.from_mapping(test_config)
 
@@ -39,12 +39,14 @@ def create_app(test_config: Optional[dict] = None) -> Flask:
     app.config["HUMANIZE_USE_UTC"] = True
     humanize = Humanize(app)  # noqa: F841
 
-    from .login_views import login_views
-
     @app.route("/")
     def index() -> Response:
         return render_template("index.html")
 
+    from . import db
+    from .login_views import login_views
+
+    db.init_app(app)
     app.register_blueprint(login_views)
     app.logger.debug("Finalize the app creation")
 

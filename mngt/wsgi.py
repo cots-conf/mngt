@@ -1,6 +1,6 @@
 import os
 
-from mgnt import create_app
+from mngt import create_app
 
 app = create_app()
 
