@@ -1,8 +1,27 @@
 from logging.config import dictConfig
 from typing import Optional
 
+import flask_login
+from authlib.integrations.flask_client import OAuth
 from flask import Flask, Response, render_template
 from flask_humanize import Humanize
+from flask_restful import Api
+
+from .db import _users
+from .models import User
+
+oauth = OAuth()
+oauth.register(  # noqa: S106
+    "azure",
+    # server_metadata_url="https://login.microsoftonline.com/organizations/v2.0/.well-known/openid-configuration",
+    api_base_url="https://graph.microsoft.com/",
+    authorize_url="https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+    access_token_url="https://login.microsoftonline.com/common/oauth2/v2.0/token",
+    jwks_uri="https://login.microsoftonline.com/common/discovery/v2.0/keys",
+    userinfo_endpoint="https://graph.microsoft.com/oidc/userinfo",
+    client_kwargs={"scope": "openid profile email"},
+)
+login_manager = flask_login.LoginManager()
 
 dictConfig(
     {
@@ -45,10 +64,32 @@ def create_app(test_config: Optional[dict] = None) -> Flask:
 
     from . import db
     from .login_views import login_views
+    from .proposal_api import ProposalDetail, ProposalList
+    from .proposal_views import proposal_views
 
+    api = Api(app, prefix="/api/v1/")
     db.init_app(app)
+    login_manager.init_app(app)
+    oauth.init_app(app)
+
     app.register_blueprint(login_views)
+    app.register_blueprint(proposal_views)
+    api.add_resource(ProposalDetail, "/proposal/<int:proposal_id>")
+    api.add_resource(ProposalList, "/proposals")
+
     app.logger.debug("Finalize the app creation")
+
+    @login_manager.user_loader
+    def user_loader(user_id: str) -> User:
+        """Load the user object."""
+        app.logger.debug(f"attempt to load {user_id}")
+
+        if user_id not in _users:
+            return
+
+        user = User()
+        user.id = user_id
+        return user
 
     return app
 

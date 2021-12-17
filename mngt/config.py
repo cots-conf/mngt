@@ -11,5 +11,12 @@ class Config:
     # "sqlite+pysqlite://" is for in-memory.
     # "sqlite+pysqlite:///" is for file.
     SQLALCHEMY_DATABASE_URI = os.getenv(
-        "DATABASE_URI", "sqlite+pysqlite:///mngt-app.test.db"
+        "DATABASE_URI", ""
     )
+    AZURE_CLIENT_ID = os.getenv(
+        "AZURE_CLIENT_ID", ""
+    )
+    AZURE_CLIENT_SECRET = os.getenv(
+        "AZURE_CLIENT_SECRET", ""
+    )
+    ENTRY_PER_PAGE = 5

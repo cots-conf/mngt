@@ -1,6 +1,7 @@
 import flask_login
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.schema import Table
 
 Base = declarative_base()
 
@@ -9,6 +10,23 @@ class User(flask_login.UserMixin):
     """User model."""
 
     pass
+
+
+class Conference(Base):
+    """ORM model for Conference table."""
+
+    __tablename__ = "conference"
+
+    id = Column(Integer, primary_key=True)
+    created = Column(DateTime)
+    modified = Column(DateTime)
+
+    name = Column(String(length=350), unique=True)
+    description = Column(String(length=250))
+    begin = Column(DateTime)
+    end = Column(DateTime)
+
+    panels = relationship("Panel", back_populates="conference")
 
 
 class Participant(Base):
@@ -26,6 +44,8 @@ class Participant(Base):
     last_name = Column(String(length=250))
     affiliation = Column(String(length=300))
 
+    proposals = relationship("Proposal", back_populates="author")
+
 
 class Proposal(Base):
     """ORM model for Proposal table."""
@@ -36,23 +56,21 @@ class Proposal(Base):
     created = Column(DateTime)
     modified = Column(DateTime)
 
-    # TODO: Add author
-
+    author_id = Column(Integer, ForeignKey("participant.id"))
+    author = relationship("Participant", back_populates="proposals")
+    title = Column(String(length=300))
     type = Column(String(length=200))
     abstract = Column(Text)
 
 
-class Participation(Base):
-    """Connect Panel and Participant."""
-
-    __tablename__ = "participation"
-
-    id = Column(Integer, primary_key=True)
-
-    panel_id = Column(Integer, ForeignKey("panel.id"))
-    participant_id = Column(Integer, ForeignKey("participant.id"))
-
-    role = Column(String(length=150))
+Participation = Table(
+    "participation",
+    Base.metadata,
+    Column("id", Integer, primary_key=True),
+    Column("panel_id", Integer, ForeignKey("panel.id")),
+    Column("participant_Id", Integer, ForeignKey("participant.id")),
+    Column("role", String(length=150)),
+)
 
 
 class Panel(Base):
@@ -66,7 +84,9 @@ class Panel(Base):
     end = Column(DateTime)
     url = Column(String(length=4096))
 
-    # TODO: Add relation to participant via paricipation table.
+    conference_id = Column(Integer, ForeignKey("conference.id"))
+    conference = relationship("Conference", back_populates="panels")
+
     participants = relationship(
-        "Participation", secondary=Participation, backref="panels"
+        "Participant", secondary=Participation, backref="panels"
     )
