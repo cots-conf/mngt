@@ -191,4 +191,27 @@ def create_proposal(slug: str) -> Response:
 )
 def proposal_detail(slug: str, pid: int) -> Response:
     """Return proposal detail."""
+    engine = get_engine()
+    with Session(engine, future=True) as session:
+        # Get the conference by its slug.
+        conf_get_stmt = select(Conference).where(Conference.slug == slug)
+        conference = session.execute(conf_get_stmt).scalars().first()
+        if conference is None:
+            abort(404)
+
+        proposal_get_stmt = select(Proposal).where(
+            (Proposal.conference_id == conference.id) and (Proposal.id == pid)
+        )
+        proposal = session.execute(proposal_get_stmt).scalars().first()
+        if proposal is None:
+            abort(404)
+
+        return render_template(
+            "conference/proposal_detail.html",
+            conference=conference,
+            cid=conference.id,
+            slug=slug,
+            item=proposal,
+        )
+
     return "Proposal detail."

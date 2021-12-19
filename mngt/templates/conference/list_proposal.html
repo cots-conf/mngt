@@ -24,7 +24,7 @@
             visibility: visible;
         }
     </style>
-    <h4><a href="{{ url_for('conferences.detail', slug=slug)  }}">{{ conference.name }}</a> > Proposals</h4>
+    <h4><a href="{{ url_for('conferences.list')  }}">Conferences</a> &gt; <a href="{{ url_for('conferences.detail', slug=slug)  }}">{{ conference.name }}</a> &gt; Proposals</h4>
     <a href="{{ url_for('conferences.create_proposal', slug=slug) }}">Create new proposal</a>
     <hr/>
     <div class="pure-g">
