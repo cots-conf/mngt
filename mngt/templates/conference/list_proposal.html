@@ -28,11 +28,11 @@
     <a href="{{ url_for('conferences.create_proposal', slug=slug) }}">Create new proposal</a>
     <hr/>
     <div class="pure-g">
-        {% for p in items %}
+        {% for short_title, p in items %}
         <div class="pure-u-1">
-            <p><span>Title: {{ p.title }}</span>
+            <p><span>Title: {{ short_title }}</span>
             </p>
-            <a class="pure-button" href="{{ url_for('conferences.proposal_detail', slug=slug, pid=p.id) }}">Detail</a>
+            <a class="pure-button" href="{{ url_for('conferences.proposal_detail', slug=slug, pid=p.id, list_page=pagination['curr_page']) }}">Detail</a>
         </div>
         {% else %}
         <div class="pure-u-1">

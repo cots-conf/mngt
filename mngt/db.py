@@ -113,6 +113,14 @@ def row_is_all_none_or_empty(row: Tuple) -> bool:
     )
 
 
+def get_short_title(title: str) -> str:
+    """Get the short version of a text."""
+    titles = [title, title.split("\n")[0], title.split(".")[0]]
+    lens = [len(title) for title in titles]
+    short_titles = sorted(zip(lens, titles), key=lambda v: v[0])
+    return short_titles[0][1]
+
+
 def import_cots2021_proposals(file_path: Path, worksheet_name: str = None) -> None:
     """Import the COTS 2021's Excel Containing Proposals.
 
@@ -237,14 +245,19 @@ def import_cots2021_proposals(file_path: Path, worksheet_name: str = None) -> No
                 roundtable_names = row[11].value
                 roundtable_emails = row[12].value  # noqa: F841
 
+                short_title = get_short_title(roundtable_names)
+                abstract = ""
+                if short_title != roundtable_names:
+                    abstract = roundtable_names
+
                 participant.proposals.append(
                     models.Proposal(
                         conference=cot2021_conf,
                         created=datetime.utcnow(),
                         modified=datetime.utcnow(),
-                        title=roundtable_names,
+                        title=short_title,
                         type=proposal_type,
-                        abstract="",
+                        abstract=abstract,
                     )
                 )
         session.commit()

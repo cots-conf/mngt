@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}{{ item.title }}{% endblock %}
 {% block content %}
-    <h4><a href="{{ url_for('conferences.list')  }}">Conferences</a> &gt; <a href="{{ url_for('conferences.detail', slug=slug)  }}">{{ conference.name }}</a> &gt; <a href="{{ url_for('conferences.list_proposals', slug=slug)  }}">Proposals</a> &gt; {{ item.title }}</h4>
+    <h4><a href="{{ url_for('conferences.list')  }}">Conferences</a> &gt; <a href="{{ url_for('conferences.detail', slug=slug)  }}">{{ conference.name }}</a> &gt; <a href="{{ url_for('conferences.list_proposals', slug=slug, page=list_page)  }}">Proposals</a> &gt; {{ item.title }}</h4>
     <p>{{ item.type }} by {{ item.author.first_name }} {{ item.author.last_name }}</p>
     <hr/>
     <p>{{ item.abstract }}</p>

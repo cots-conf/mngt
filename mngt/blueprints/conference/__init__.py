@@ -12,7 +12,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.expression import select
 
-from mngt.db import get_engine
+from mngt.db import get_engine, get_short_title
 from mngt.forms import NewConferenceForm
 from mngt.models import Conference, Proposal
 
@@ -42,6 +42,7 @@ def list() -> Response:
 
         number_of_pages = int(ceil(total / current_app.config["ENTRY_PER_PAGE"] * 1.0))
         pagination = {
+            "curr_page": page,
             "has_prev": page > 1,
             "has_next": page < number_of_pages,
             "prev_num": page - 1,  # has_prev should be checked before using this value.
@@ -140,10 +141,16 @@ def list_proposals(slug: str) -> Response:
         )
 
         total = session.execute(total_stmt).scalars().first()
-        proposals = session.execute(limit_stmt).scalars().all()
+        raw_proposals = session.execute(limit_stmt).scalars().all()
+
+        proposals = []
+        for proposal in raw_proposals:
+            short_title = get_short_title(proposal.title)
+            proposals.append((short_title, proposal))
 
         number_of_pages = int(ceil(total / current_app.config["ENTRY_PER_PAGE"] * 1.0))
         pagination = {
+            "curr_page": page,
             "has_prev": page > 1,
             "has_next": page < number_of_pages,
             "prev_num": page - 1,  # has_prev should be checked before using this value.
@@ -191,6 +198,8 @@ def create_proposal(slug: str) -> Response:
 )
 def proposal_detail(slug: str, pid: int) -> Response:
     """Return proposal detail."""
+    list_page = request.args.get("list_page", 1, type=int)
+
     engine = get_engine()
     with Session(engine, future=True) as session:
         # Get the conference by its slug.
@@ -199,9 +208,7 @@ def proposal_detail(slug: str, pid: int) -> Response:
         if conference is None:
             abort(404)
 
-        proposal_get_stmt = select(Proposal).where(
-            (Proposal.conference_id == conference.id) and (Proposal.id == pid)
-        )
+        proposal_get_stmt = select(Proposal).where(Proposal.conference_id == conference.id).where(Proposal.id == pid)
         proposal = session.execute(proposal_get_stmt).scalars().first()
         if proposal is None:
             abort(404)
@@ -212,6 +219,7 @@ def proposal_detail(slug: str, pid: int) -> Response:
             cid=conference.id,
             slug=slug,
             item=proposal,
+            list_page=list_page,
         )
 
     return "Proposal detail."
