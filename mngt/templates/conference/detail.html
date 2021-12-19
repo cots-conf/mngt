@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}{{ item.name }}{% endblock %}
+{% block content %}
+    <h4>{{ item.name }}</h4>
+    <p>{{ begin }} to {{ end }}</p>
+    <hr/>
+    <p>{{ item.description }}</p>
+    <p># Proposals: {{ proposal_counts }}</p>
+    <p># Panels: {{ panel_counts }}</p>
+    <hr/>
+    <a class="pure-button" href="#">Edit</a>
+    <a class="pure-button" href="{{ url_for('conferences.list_proposals', slug=item.slug) }}">View proposals</a>
+{% endblock %}

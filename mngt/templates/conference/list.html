@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Proposals{% endblock %}
+{% block title %}Conferences{% endblock %}
 {% block content %}
 <style>
     .tooltip {
@@ -24,27 +24,28 @@
         visibility: visible;
     }
 </style>
-<h4>Proposals</h4>
-<a href="{{ url_for('proposals.create_proposal') }}">Create new</a>
+<h4>Conferences</h4>
+<a href="{{ url_for('conferences.create') }}">Create new conference</a>
 <hr/>
 <div class="pure-g">
-    {% for p in items %}
+    {% for c in items %}
     <div class="pure-u-1">
-        <p><span>Title: {{ p.title }}</span>
-        </p>
-        <a class="pure-button" href="{{ url_for('proposals.proposal_detail', pid=p.id)}}">Detail</a>
+        <p>{{ c.name }}</p>
+        <p>{{ c.description }}</p>
+        <a class="pure-button" href="{{ url_for('conferences.detail', slug=c.slug) }}">Detail</a>
+        <a class="pure-button" href="{{ url_for('conferences.list_proposals', slug=c.slug) }}">View proposals</a>
     </div>
     {% else %}
     <div class="pure-u-1">
-        <p>No proposals found</p>
+        <p>No conferences found</p>
     </div>
     {% endfor %}
     <div class="pure-u-1">
         {% if prev_url %}
-        <a href="{{ prev_url }}">Newer proposals</a>
+        <a href="{{ prev_url }}">Newer conferences</a>
         {% endif %}
         {% if next_url %}
-        <a href="{{ next_url }}">Older proposals</a>
+        <a href="{{ next_url }}">Older conferences</a>
         {% endif %}
     </div>
 </div>

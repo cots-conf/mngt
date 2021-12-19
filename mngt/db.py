@@ -7,6 +7,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Tuple
 
+import arrow
 import click
 from flask import Flask, current_app, g
 from flask.cli import with_appcontext
@@ -23,8 +24,8 @@ _conferences = [
     {
         "name": "COTS 2021",
         "description": "2021 Meeting of the Council on Thai Studies (COTS)",
-        "begin": "2021-11-12 16:30:00.00",
-        "end": "2021-11-13 16:30:00.00",
+        "begin": arrow.get(datetime(2021, 11, 12, 16, 30), "US/Eastern").to('utc').datetime,
+        "end": arrow.get(datetime(2021, 11, 13, 23, 45), "US/Eastern").to('utc').datetime,
     }
 ]
 
@@ -144,6 +145,19 @@ def import_cots2021_proposals(file_path: Path, worksheet_name: str = None) -> No
 
     engine = get_engine()
     with Session(engine, future=True) as session:
+        # NOTE: Hard coded value fot COTS 2021.
+        cot2021_conf = models.Conference(
+            name=_conferences[0]["name"],
+            description=_conferences[0]["description"],
+            slug="cots-2021",
+            begin=_conferences[0]["begin"],
+            end=_conferences[0]["end"],
+            created=datetime.utcnow(),
+            modified=datetime.utcnow(),
+        )
+        session.add(cot2021_conf)
+        session.commit
+
         # min_row is 1-based index.
         for row in ws.iter_rows(min_row=2):
             # if row.participant.email not in participant_emails
@@ -189,6 +203,7 @@ def import_cots2021_proposals(file_path: Path, worksheet_name: str = None) -> No
                 first_line = abstract.split("\n")[0]
                 participant.proposals.append(
                     models.Proposal(
+                        conference=cot2021_conf,
                         created=datetime.utcnow(),
                         modified=datetime.utcnow(),
                         title=first_line,
@@ -207,6 +222,7 @@ def import_cots2021_proposals(file_path: Path, worksheet_name: str = None) -> No
 
                 participant.proposals.append(
                     models.Proposal(
+                        conference=cot2021_conf,
                         created=datetime.utcnow(),
                         modified=datetime.utcnow(),
                         title=panel_topic,
@@ -223,6 +239,7 @@ def import_cots2021_proposals(file_path: Path, worksheet_name: str = None) -> No
 
                 participant.proposals.append(
                     models.Proposal(
+                        conference=cot2021_conf,
                         created=datetime.utcnow(),
                         modified=datetime.utcnow(),
                         title=roundtable_names,

@@ -63,17 +63,20 @@ def create_app(test_config: Optional[dict] = None) -> Flask:
         return render_template("index.html")
 
     from . import db
+    from .blueprints.conference import conference_views
     from .login_views import login_views
     from .proposal_api import ProposalDetail, ProposalList
-    from .proposal_views import proposal_views
 
     api = Api(app, prefix="/api/v1/")
     db.init_app(app)
     login_manager.init_app(app)
     oauth.init_app(app)
 
+    # Views
     app.register_blueprint(login_views)
-    app.register_blueprint(proposal_views)
+    app.register_blueprint(conference_views)
+
+    # APIs
     api.add_resource(ProposalDetail, "/proposal/<int:proposal_id>")
     api.add_resource(ProposalList, "/proposals")
 

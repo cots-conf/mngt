@@ -21,12 +21,14 @@ class Conference(Base):
     created = Column(DateTime)
     modified = Column(DateTime)
 
-    name = Column(String(length=350), unique=True)
+    name = Column(String(length=50), unique=True)
+    slug = Column(String(length=60), unique=True)
     description = Column(String(length=250))
     begin = Column(DateTime)
     end = Column(DateTime)
 
     panels = relationship("Panel", back_populates="conference")
+    proposals = relationship("Proposal", back_populates="conference")
 
 
 class Participant(Base):
@@ -53,6 +55,8 @@ class Proposal(Base):
     __tablename__ = "proposal"
 
     id = Column(Integer, primary_key=True)
+    conference_id = Column(Integer, ForeignKey("conference.id"))
+    conference = relationship("Conference", back_populates="proposals")
     created = Column(DateTime)
     modified = Column(DateTime)
 
