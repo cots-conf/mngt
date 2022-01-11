@@ -8,13 +8,13 @@ from flask import (
     Blueprint, Response, abort, current_app, redirect, render_template,
     request, url_for
 )
-from sqlalchemy import func
+from sqlalchemy import and_, func, or_
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.expression import select
 
 from mngt.db import get_engine, get_short_title
 from mngt.forms import NewConferenceForm
-from mngt.models import Conference, Panel, Proposal
+from mngt.models import Conference, Panel, Participant, Proposal
 
 conference_views = Blueprint(
     "conferences", __name__, template_folder="../../templates/conference/"
@@ -75,6 +75,8 @@ def list() -> Response:
 @conference_views.route("/conferences/new", methods=["GET", "POST"])
 def create() -> Response:
     """A view for creating new conference."""
+    conf_list_page = request.args.get("clp", 1, type=int)
+
     form = NewConferenceForm(request.form)
     print(form.data)
     if request.method == "POST" and form.validate():
@@ -86,7 +88,7 @@ def create() -> Response:
             session.add(conf)
             session.commit()
             return redirect(url_for("conferences.list"))
-    return render_template("create.html", form=form)
+    return render_template("create.html", form=form, conf_list_page=conf_list_page)
 
 
 @conference_views.route("/conferences/<slug>")
@@ -325,7 +327,7 @@ def create_panel(slug: str) -> Response:
             cid=conference.id,
             slug=slug,
             conf_list_page=conf_list_page,
-            utcnow=datetime.utcnow()
+            utcnow=datetime.utcnow(),
         )
 
 
@@ -338,6 +340,7 @@ def panel_detail(slug: str, pid: int) -> Response:
 @conference_views.route("/conferences/<slug>/search", methods=["GET", "POST"])
 def search_proposal(slug: str) -> Response:
     """Return panels matching the search keywords."""
+    # TODO: Allow searching with author name.
     query = request.args.get("q")
     engine = get_engine()
     with Session(engine, future=True) as session:
@@ -347,11 +350,26 @@ def search_proposal(slug: str) -> Response:
         if conference is None:
             abort(404)
 
-        search_proposal_stmt = select(Proposal).where(Proposal.title.contains(query))
-        proposals = session.execute(search_proposal_stmt).scalars().all()
+        # search_proposal_stmt = select(Proposal).where(Proposal.title.contains(query))
+        # proposals = session.execute(search_proposal_stmt).scalars().all()
+        proposals = (
+            session.query(Proposal)
+            .join(Participant)
+            .filter(
+                and_(
+                    Proposal.conference_id == conference.id,
+                    or_(
+                        Proposal.title.contains(query),
+                        Participant.first_name.contains(query),
+                        Participant.last_name.contains(query),
+                    ),
+                )
+            )
+            .all()
+        )
         # titles = " ".join([p.title for p in proposals])
 
-    return render_template("conference/search_results.html", items=proposals)
+        return render_template("conference/search_results.html", items=proposals)
 
 
 @conference_views.route("/conferences/<slug>/_debug", methods=["GET"])

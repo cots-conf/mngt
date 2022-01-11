@@ -66,6 +66,15 @@ class Proposal(Base):
     type = Column(String(length=200))
     abstract = Column(Text)
 
+    @property
+    def short_title(self) -> str:
+        """Return short title."""
+        title = self.title
+        titles = [title, title.split("\n")[0], title.split(".")[0]]
+        lens = [len(title) for title in titles]
+        short_titles = sorted(zip(lens, titles), key=lambda v: v[0])
+        return short_titles[0][1]
+
 
 Participation = Table(
     "participation",

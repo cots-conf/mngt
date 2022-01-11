@@ -24,8 +24,12 @@ _conferences = [
     {
         "name": "COTS 2021",
         "description": "2021 Meeting of the Council on Thai Studies (COTS)",
-        "begin": arrow.get(datetime(2021, 11, 12, 16, 30), "US/Eastern").to('utc').datetime,
-        "end": arrow.get(datetime(2021, 11, 13, 23, 45), "US/Eastern").to('utc').datetime,
+        "begin": arrow.get(datetime(2021, 11, 12, 16, 30), "US/Eastern")
+        .to("utc")
+        .datetime,
+        "end": arrow.get(datetime(2021, 11, 13, 23, 45), "US/Eastern")
+        .to("utc")
+        .datetime,
     }
 ]
 

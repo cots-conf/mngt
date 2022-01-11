@@ -1,61 +1,65 @@
-{% extends "base.html" %}
-{% block title %}Create conference{% endblock %}
-{% block content %}
-    <div class="pure-g">
-        <div class="pure-u-1">
-            <h4>New conference</h4>
-            <form class="pure-form pure-form-aligned" method="POST" action="{{ url_for('conferences.create') }}">
-                <fieldset>
-                    <div class="pure-control-group">
-                        {{ form.name.label }}
-                        {{ form.name(size=20) }}
-                        {% if form.name.errors %}
-                        <ul class="errors">
-                            {% for error in form.name.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                        </ul>
-                        {% endif %}
-                    </div>
-                    <div class="pure-control-group">
-                        {{ form.description.label }}
-                        {{ form.description(rows=6, cols=60) }}
-                        {% if form.description.errors %}
-                        <ul class="errors">
-                            {% for error in form.description.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                        </ul>
-                        {% endif %}
-                    </div>
-                    <div class="pure-control-group">
-                        {{ form.begin.label }}
-                        {{ form.begin }}
-                        {% if form.begin.errors %}
-                        <ul class="errors">
-                            {% for error in form.begin.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                        </ul>
-                        {% endif %}
-                    </div>
-                    <div class="pure-control-group">
-                        {{ form.end.label }}
-                        {{ form.end }}
-                        {% if form.end.errors %}
-                        <ul class="errors">
-                            {% for error in form.end.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                        </ul>
-                        {% endif %}
-                    </div>
-                    <div class="pure-controls">
-                        {{ form.csrf_token }}
-                        <button type="submit" class="pure-button pure-button-primary">Create</button>
-                    </div>
-                </fieldset>
-            </form>
+{% extends "base.html" %} {% block title %}Create conference{% endblock %} {%
+block content %}
+<div class="pure-g">
+  <div class="pure-u-1">
+    <h4>
+      <a href="{{ url_for('conferences.list', page=conf_list_page)  }}"
+        >Conferences</a
+      >
+      &gt; New
+    </h4>
+    <form
+      class="pure-form pure-form-aligned"
+      method="POST"
+      action="{{ url_for('conferences.create') }}"
+    >
+      <fieldset>
+        <div class="pure-control-group">
+          {{ form.name.label }} {{ form.name(size=20) }} {% if form.name.errors
+          %}
+          <ul class="errors">
+            {% for error in form.name.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
         </div>
-    </div>
+        <div class="pure-control-group">
+          {{ form.description.label }} {{ form.description(rows=6, cols=60) }}
+          {% if form.description.errors %}
+          <ul class="errors">
+            {% for error in form.description.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        <div class="pure-control-group">
+          {{ form.begin.label }} {{ form.begin }} {% if form.begin.errors %}
+          <ul class="errors">
+            {% for error in form.begin.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        <div class="pure-control-group">
+          {{ form.end.label }} {{ form.end }} {% if form.end.errors %}
+          <ul class="errors">
+            {% for error in form.end.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        <div class="pure-controls">
+          {{ form.csrf_token }}
+          <button type="submit" class="pure-button pure-button-primary">
+            Create
+          </button>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</div>
 {% endblock %}

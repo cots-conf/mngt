@@ -9,9 +9,15 @@ class NewConferenceForm(FlaskForm):
     """Form for new conference."""
 
     name = StringField("Name", validators=[DataRequired()])
-    description = StringField("Description", validators=[DataRequired()], widget=TextArea())
-    begin = DateTimeLocalField("Begin date", validators=[DataRequired()], format='%Y-%m-%dT%H:%M')
-    end = DateTimeLocalField("End date", validators=[DataRequired()], format='%Y-%m-%dT%H:%M')
+    description = StringField(
+        "Description", validators=[DataRequired()], widget=TextArea()
+    )
+    begin = DateTimeLocalField(
+        "Begin date", validators=[DataRequired()], format="%Y-%m-%dT%H:%M"
+    )
+    end = DateTimeLocalField(
+        "End date", validators=[DataRequired()], format="%Y-%m-%dT%H:%M"
+    )
 
 
 class NewProposalForm(FlaskForm):
@@ -26,4 +32,6 @@ class NewPanelForm(FlaskForm):
     """Form for new panel."""
 
     title = StringField("title", validators=[DataRequired()])
-    start = DateTimeLocalField("Begin date", validators=[DataRequired()], format='%Y-%m-%dT%H:%M')
+    start = DateTimeLocalField(
+        "Begin date", validators=[DataRequired()], format="%Y-%m-%dT%H:%M"
+    )

@@ -1,6 +1,7 @@
 {% for p in items %}
 <div class="pure-u-1 proposal" data-id="{{ p.id }}">
-  #{{ p.id }} {{ p.title }}
+  #{{ p.id }} - {{ p.author.first_name }} {{ p.author.last_name }} - {{
+  p.short_title }}
 </div>
 {% else %}
 <div class="pure-u-1 proposal not-found">
