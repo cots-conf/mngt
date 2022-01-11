@@ -12,7 +12,7 @@
             visibility: hidden;
             width: 120px;
             background-color: black;
-            color #fff;
+            color: #fff;
             text-align: center;
             padding: 5px 0;
             border-radius: 6px;
@@ -24,7 +24,7 @@
             visibility: visible;
         }
     </style>
-    <h4><a href="{{ url_for('conferences.list')  }}">Conferences</a> &gt; <a href="{{ url_for('conferences.detail', slug=slug)  }}">{{ conference.name }}</a> &gt; Proposals</h4>
+    <h4><a href="{{ url_for('conferences.list', page=conf_list_page)  }}">Conferences</a> &gt; <a href="{{ url_for('conferences.detail', slug=slug, clp=conf_list_page)  }}">{{ conference.name }}</a> &gt; Proposals</h4>
     <a href="{{ url_for('conferences.create_proposal', slug=slug) }}">Create new proposal</a>
     <hr/>
     <div class="pure-g">
@@ -32,11 +32,11 @@
         <div class="pure-u-1">
             <p><span>Title: {{ short_title }}</span>
             </p>
-            <a class="pure-button" href="{{ url_for('conferences.proposal_detail', slug=slug, pid=p.id, list_page=pagination['curr_page']) }}">Detail</a>
+            <a class="pure-button" href="{{ url_for('conferences.proposal_detail', slug=slug, pid=p.id, plp=pagination['curr_page']) }}">Detail</a>
         </div>
         {% else %}
         <div class="pure-u-1">
-            <p>No proposals found</p>
+            <p>No proposal found</p>
         </div>
         {% endfor %}
         <div class="pure-u-1">
@@ -48,7 +48,4 @@
             {% endif %}
         </div>
     </div>
-    <ul>
-
-    </ul>
 {% endblock %}

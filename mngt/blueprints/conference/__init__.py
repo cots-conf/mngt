@@ -14,7 +14,7 @@ from sqlalchemy.sql.expression import select
 
 from mngt.db import get_engine, get_short_title
 from mngt.forms import NewConferenceForm
-from mngt.models import Conference, Proposal
+from mngt.models import Conference, Panel, Proposal
 
 conference_views = Blueprint(
     "conferences", __name__, template_folder="../../templates/conference/"
@@ -92,6 +92,8 @@ def create() -> Response:
 @conference_views.route("/conferences/<slug>")
 def detail(slug: str) -> Response:
     """A view for conference detail."""
+    conf_list_page = request.args.get("clp", 1, type=int)
+
     engine = get_engine()
     with Session(engine, future=True) as session:
         get_stmt = select(Conference).where(Conference.slug == slug)
@@ -106,6 +108,7 @@ def detail(slug: str) -> Response:
             "conference/detail.html",
             cid=conference.id,
             slug=conference.slug,
+            conf_list_page=conf_list_page,
             item=conference,
             begin=begin,
             end=end,
@@ -117,6 +120,7 @@ def detail(slug: str) -> Response:
 @conference_views.route("/conferences/<slug>/proposals", methods=["GET"])
 def list_proposals(slug: str) -> Response:
     """List proposals."""
+    conf_list_page = request.args.get("clp", 1, type=int)
     page = request.args.get("page", 1, type=int)
 
     engine = get_engine()
@@ -175,10 +179,11 @@ def list_proposals(slug: str) -> Response:
         current_app.logger.debug(next_url)
 
         return render_template(
-            "conference/list_proposal.html",
+            "conference/list_proposals.html",
             conference=conference,
             cid=conference.id,
             slug=slug,
+            conf_list_page=conf_list_page,
             items=proposals,
             utcnow=datetime.utcnow(),
             pagination=pagination,
@@ -198,7 +203,8 @@ def create_proposal(slug: str) -> Response:
 )
 def proposal_detail(slug: str, pid: int) -> Response:
     """Return proposal detail."""
-    list_page = request.args.get("list_page", 1, type=int)
+    conf_list_page = request.args.get("clp", 1, type=int)
+    proposal_list_page = request.args.get("plp", 1, type=int)
 
     engine = get_engine()
     with Session(engine, future=True) as session:
@@ -208,7 +214,11 @@ def proposal_detail(slug: str, pid: int) -> Response:
         if conference is None:
             abort(404)
 
-        proposal_get_stmt = select(Proposal).where(Proposal.conference_id == conference.id).where(Proposal.id == pid)
+        proposal_get_stmt = (
+            select(Proposal)
+            .where(Proposal.conference_id == conference.id)
+            .where(Proposal.id == pid)
+        )
         proposal = session.execute(proposal_get_stmt).scalars().first()
         if proposal is None:
             abort(404)
@@ -219,7 +229,103 @@ def proposal_detail(slug: str, pid: int) -> Response:
             cid=conference.id,
             slug=slug,
             item=proposal,
-            list_page=list_page,
+            conf_list_page=conf_list_page,
+            proposal_list_page=proposal_list_page,
         )
 
-    return "Proposal detail."
+
+@conference_views.route("/conferences/<slug>/panels", methods=["GET", "POST"])
+def list_panels(slug: str) -> Response:
+    """Return list of panels."""
+    conf_list_page = request.args.get("clp", 1, type=int)
+    page = request.args.get("page", 1, type=int)
+
+    engine = get_engine()
+    with Session(engine, future=True) as session:
+        # Get the conference by its slug.
+        conf_get_stmt = select(Conference).where(Conference.slug == slug)
+        conference = session.execute(conf_get_stmt).scalars().first()
+        if conference is None:
+            abort(404)
+
+        total_stmt = (
+            select(func.count())
+            .select_from(Panel)
+            .where(Panel.conference_id == conference.id)
+        )
+        limit_stmt = (
+            select(Panel)
+            .where(Panel.conference_id == conference.id)
+            .order_by(Panel.start.asc())
+            .offset((page - 1) * current_app.config["ENTRY_PER_PAGE"])
+            .limit(current_app.config["ENTRY_PER_PAGE"])
+        )
+
+        total = session.execute(total_stmt).scalars().first()
+        panels = session.execute(limit_stmt).scalars().all()
+
+        number_of_pages = int(ceil(total / current_app.config["ENTRY_PER_PAGE"] * 1.0))
+        pagination = {
+            "curr_page": page,
+            "has_prev": page > 1,
+            "has_next": page < number_of_pages,
+            "prev_num": page - 1,  # has_prev should be checked before using this value.
+            "next_num": page + 1,  # has_next should be checked before using this value.
+        }
+        prev_url = (
+            url_for("conferences.list_panels", slug=slug, page=pagination["prev_num"])
+            if pagination["has_prev"]
+            else None
+        )
+        next_url = (
+            url_for("conferences.list_panels", slug=slug, page=pagination["next_num"])
+            if pagination["has_next"]
+            else None
+        )
+        current_app.logger.debug(pagination)
+        current_app.logger.debug(prev_url)
+        current_app.logger.debug(next_url)
+
+        return render_template(
+            "conference/list_panels.html",
+            conference=conference,
+            cid=conference.id,
+            slug=slug,
+            conf_list_page=conf_list_page,
+            items=panels,
+            utcnow=datetime.utcnow(),
+            pagination=pagination,
+            prev_url=prev_url,
+            next_url=next_url,
+        )
+
+
+@conference_views.route("/conferences/<slug>/panels/new", methods=["GET", "POST"])
+def create_panel(slug: str) -> Response:
+    """Create a panel for the conference `cid`."""
+    return "New panel."
+
+
+@conference_views.route("/conferences/<slug>/panels/<int:pid>", methods=["GET", "POST"])
+def panel_detail(slug: str, pid: int) -> Response:
+    """Return panel detail."""
+    return "Panel detail."
+
+
+@conference_views.route("/conferences/<slug>/search", methods=["GET", "POST"])
+def search_proposal(slug: str) -> Response:
+    """Return panels matching the search keywords."""
+    query = request.args.get("q")
+    engine = get_engine()
+    with Session(engine, future=True) as session:
+        # Get the conference by its slug.
+        conf_get_stmt = select(Conference).where(Conference.slug == slug)
+        conference = session.execute(conf_get_stmt).scalars().first()
+        if conference is None:
+            abort(404)
+
+        search_proposal_stmt = select(Proposal).where(Proposal.title.contains(query))
+        proposals = session.execute(search_proposal_stmt).scalars().all()
+        # titles = " ".join([p.title for p in proposals])
+
+    return render_template("conference/search_results.html", items=proposals)

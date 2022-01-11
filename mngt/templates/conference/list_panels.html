@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Panels{% endblock %}
+{% block head_end %}
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.js'></script>
+    <style>
+        #search-results div.proposal {
+            color: red;
+            padding: 10px;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <h4><a href="{{ url_for('conferences.list')  }}">Conferences</a> &gt; <a href="{{ url_for('conferences.detail', slug=slug)  }}">{{ conference.name }}</a> &gt; Panels</h4>
+    <hr/>
+    <div class="pure-g">
+        <div class="pure-u-2-5">
+            <form class="pure-form">
+                <input type="text" name="q" placeholder="Search for a proposal ..."
+                       size="30"
+                       hx-get="{{ url_for('conferences.search_proposal', slug=slug) }}"
+                       hx-trigger="keyup changed delay:500ms"
+                       hx-target="#search-results"
+                />
+            </form>
+            <div id="search-results" class="pure-g proposal-list">
+            </div>
+        </div>
+        <div class="pure-u-2-5">
+            <div id="panels" class="pure-g panel-list">
+            </div>
+        </div>
+    </div>
+    <script>
+        dragula([document.querySelector('.proposal-list'), document.querySelector('.panel-list')],
+            {
+                "accepts": (el, target, source, sibling) => {
+
+                }
+            });
+    </script>
+{% endblock %}

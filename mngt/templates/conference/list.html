@@ -12,7 +12,7 @@
         visibility: hidden;
         width: 120px;
         background-color: black;
-        color #fff;
+        color: #fff;
         text-align: center;
         padding: 5px 0;
         border-radius: 6px;
@@ -32,7 +32,7 @@
     <div class="pure-u-1">
         <p>{{ c.name }}</p>
         <p>{{ c.description }}</p>
-        <a class="pure-button" href="{{ url_for('conferences.detail', slug=c.slug) }}">Detail</a>
+        <a class="pure-button" href="{{ url_for('conferences.detail', slug=c.slug, clp=pagination['curr_page']) }}">Detail</a>
         <a class="pure-button" href="{{ url_for('conferences.list_proposals', slug=c.slug) }}">View proposals</a>
     </div>
     {% else %}

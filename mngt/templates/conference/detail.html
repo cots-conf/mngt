@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}{{ item.name }}{% endblock %}
 {% block content %}
-    <h4><a href="{{ url_for('conferences.list')  }}">Conferences</a> &gt; {{ item.name }}</h4>
+    <h4><a href="{{ url_for('conferences.list', page=conf_list_page)  }}">Conferences</a> &gt; {{ item.name }}</h4>
     <p>{{ begin }} to {{ end }}</p>
     <hr/>
     <p>{{ item.description }}</p>
@@ -10,4 +10,5 @@
     <hr/>
     <a class="pure-button" href="#">Edit</a>
     <a class="pure-button" href="{{ url_for('conferences.list_proposals', slug=item.slug) }}">View proposals</a>
+    <a class="pure-button" href="{{ url_for('conferences.list_panels', slug=item.slug) }}">View panels</a>
 {% endblock %}

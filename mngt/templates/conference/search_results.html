@@ -1,0 +1,9 @@
+{% for p in items %}
+    <div class="pure-u-1 proposal">
+        {{ p.title }}
+    </div>
+{% else %}
+    <div class="pure-u-1">
+        <p>No proposal found</p>
+    </div>
+{% endfor %}

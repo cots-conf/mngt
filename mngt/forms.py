@@ -20,3 +20,10 @@ class NewProposalForm(FlaskForm):
     title = StringField("title", validators=[DataRequired()])
     type = StringField("type", validators=[DataRequired()])
     abstract = StringField("abstract", validators=[DataRequired()])
+
+
+class NewPanelForm(FlaskForm):
+    """Form for new panel."""
+
+    title = StringField("title", validators=[DataRequired()])
+    start = DateTimeLocalField("Begin date", validators=[DataRequired()], format='%Y-%m-%dT%H:%M')
