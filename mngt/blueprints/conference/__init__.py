@@ -240,6 +240,9 @@ def list_panels(slug: str) -> Response:
     conf_list_page = request.args.get("clp", 1, type=int)
     page = request.args.get("page", 1, type=int)
 
+    # TODO: Allow panel to be moved around, and allow
+    #       user to save the updated order.
+
     engine = get_engine()
     with Session(engine, future=True) as session:
         # Get the conference by its slug.
@@ -303,7 +306,27 @@ def list_panels(slug: str) -> Response:
 @conference_views.route("/conferences/<slug>/panels/new", methods=["GET", "POST"])
 def create_panel(slug: str) -> Response:
     """Create a panel for the conference `cid`."""
-    return "New panel."
+    conf_list_page = request.args.get("clp", 1, type=int)
+    # page = request.args.get("page", 1, type=int)
+    # TODO: Add param for stating panel after another panel.
+    #       The start time of the next panel will then be used.
+
+    engine = get_engine()
+    with Session(engine, future=True) as session:
+        # Get the conference by its slug.
+        conf_get_stmt = select(Conference).where(Conference.slug == slug)
+        conference = session.execute(conf_get_stmt).scalars().first()
+        if conference is None:
+            abort(404)
+
+        return render_template(
+            "conference/create_panel.html",
+            conference=conference,
+            cid=conference.id,
+            slug=slug,
+            conf_list_page=conf_list_page,
+            utcnow=datetime.utcnow()
+        )
 
 
 @conference_views.route("/conferences/<slug>/panels/<int:pid>", methods=["GET", "POST"])
@@ -329,3 +352,9 @@ def search_proposal(slug: str) -> Response:
         # titles = " ".join([p.title for p in proposals])
 
     return render_template("conference/search_results.html", items=proposals)
+
+
+@conference_views.route("/conferences/<slug>/_debug", methods=["GET"])
+def debug(slug: str) -> Response:
+    """Return a debugging/prototyping view."""
+    return render_template("conference/debug.html", slug=slug)

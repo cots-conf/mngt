@@ -1,5 +1,3 @@
-{% extends "base.html" %} {% block title %}New panel{% endblock %} {% block
-head_end %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.js"></script>
 <script src="https://unpkg.com/htmx.org@1.4.1"></script>
 <link
@@ -16,17 +14,8 @@ head_end %}
   rel="stylesheet"
   href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css"
 />
-<style>
-  html {
-    height: 100%;
-  }
-  body {
-    min-height: 100%;
-  }
-  #content {
-    height: 100%;
-  }
 
+<style>
   .gu-mirror {
     position: fixed !important;
     margin: 0 !important;
@@ -50,131 +39,47 @@ head_end %}
     filter: alpha(opacity=20);
   }
 
-  @media screen and (min-width: 1200px) {
-    .container {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      gap: 10px;
-    }
-
-    .proposal-list {
-      background-color: #e00;
-      width: 600px;
-      height: 760px;
-      overflow-y: scroll;
-    }
-
-    .new-panel-proposal-list {
-      background-color: #0e0;
-      width: 600px;
-      height: 490px;
-      overflow-y: scroll;
-    }
-
-    .proposal {
-      width: 550px;
-      margin: 5px;
-      padding: 10px;
-      background-color: #ccc;
-    }
-
-    .proposal-search form input {
-      width: 600px;
-    }
+  .container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-start;
+    gap: 10px;
   }
 
-  @media screen and (min-width: 800px) and (max-width: 1199px) {
-    .container {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      gap: 10px;
-    }
-
-    .proposal-list {
-      background-color: #e00;
-      width: 400px;
-      height: 760px;
-      overflow-y: scroll;
-    }
-
-    .new-panel-proposal-list {
-      background-color: #0e0;
-      width: 400px;
-      height: 490px;
-      overflow-y: scroll;
-    }
-
-    .proposal {
-      width: 350px;
-      margin: 5px;
-      padding: 10px;
-      background-color: #ccc;
-    }
-
-    .proposal-search form input {
-      width: 400px;
-    }
+  .proposal-list {
+    background-color: #e00;
+    width: 600px;
+    height: 87%;
+    overflow-y: scroll;
   }
 
-  @media screen and (min-width: 100px) and (max-width: 799px) {
-    .container {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-start;
-      gap: 10px;
-    }
+  .new-panel-proposal-list {
+    background-color: #0e0;
+    width: 600px;
+    height: 59%;
+    overflow-y: scroll;
+  }
 
-    .proposal-list {
-      background-color: #e00;
-      width: 98%;
-      height: 200px;
-      overflow-y: scroll;
-    }
-
-    .new-panel-proposal-list {
-      background-color: #0e0;
-      width: 98%;
-      height: 200px;
-      overflow-y: scroll;
-    }
-
-    .proposal {
-      width: 90%;
-      margin: 5px;
-      padding: 10px;
-      background-color: #ccc;
-    }
-
-    .proposal-search form input {
-      width: 98%;
-    }
+  .proposal {
+    width: 550px;
+    margin: 5px;
+    padding: 10px;
+    background-color: #ccc;
   }
 </style>
-{% endblock %} {% block content %}
-<h4>
-  <a href="{{ url_for('conferences.list')  }}">Conferences</a> &gt;
-  <a href="{{ url_for('conferences.detail', slug=slug)  }}">
-    {{ conference.name }}
-  </a>
-  &gt; <a href="{{ url_for('conferences.list_panels', slug=slug) }}">Panels</a>
-  &gt; New
-</h4>
-<hr />
+
 <div class="container">
   <div class="proposal-search">
+    <p>Proposals</p>
+    <hr />
     <form class="pure-form">
       <input
         type="text"
         name="q"
         placeholder="Search for a proposal ..."
+        size="50"
         hx-get="{{ url_for('conferences.search_proposal', slug=slug) }}"
         hx-trigger="keyup changed delay:500ms"
         hx-target="#search-results"
@@ -183,6 +88,8 @@ head_end %}
     <div id="search-results" class="pure-g proposal-list"></div>
   </div>
   <div class="new-panel">
+    <p>New Panel</p>
+    <hr />
     <form
       class="pure-form pure-form-aligned"
       method="POST"
@@ -202,11 +109,11 @@ head_end %}
           />
         </div>
         <div class="pure-control-group">
-          <label for="panel-duration">Duration:</label>
+          <label for="panel-end">End:</label>
           <input
-            name="panel-duration"
-            placeholder="Duration (minutes)"
-            type="number"
+            name="panel-end"
+            placeholder="End time"
+            type="datetime-local"
           />
         </div>
         <div class="pure-control-group">
@@ -215,7 +122,7 @@ head_end %}
         </div>
         <div class="pure-controls">
           <button type="submit" class="pure-button pure-button-primary">
-            Create new panel
+            Create
           </button>
         </div>
       </fieldset>
@@ -272,4 +179,3 @@ head_end %}
     console.log(el);
   });
 </script>
-{% endblock %}

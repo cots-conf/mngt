@@ -1,55 +1,64 @@
-{% extends "base.html" %}
-{% block title %}Conferences{% endblock %}
-{% block content %}
+{# List of conferences #} {% extends "base.html" %} {% block
+title%}Conferences{% endblock %} {% block content %}
 <style>
-    .tooltip {
-        position: relative;
-        display: inline-block;
-        border-bottom: 1px dotted black;
-    }
+  .tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+  }
 
-    .tooltip .tooltip-text {
-        visibility: hidden;
-        width: 120px;
-        background-color: black;
-        color: #fff;
-        text-align: center;
-        padding: 5px 0;
-        border-radius: 6px;
-        position: absolute;
-        z-index: 1;
-    }
+  .tooltip .tooltip-text {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 1;
+  }
 
-    .tooltip:hover .tooltip-text {
-        visibility: visible;
-    }
+  .tooltip:hover .tooltip-text {
+    visibility: visible;
+  }
 </style>
 <h4>Conferences</h4>
 <a href="{{ url_for('conferences.create') }}">Create new conference</a>
-<hr/>
+<hr />
 <div class="pure-g">
-    {% for c in items %}
-    <div class="pure-u-1">
-        <p>{{ c.name }}</p>
-        <p>{{ c.description }}</p>
-        <a class="pure-button" href="{{ url_for('conferences.detail', slug=c.slug, clp=pagination['curr_page']) }}">Detail</a>
-        <a class="pure-button" href="{{ url_for('conferences.list_proposals', slug=c.slug) }}">View proposals</a>
-    </div>
-    {% else %}
-    <div class="pure-u-1">
-        <p>No conferences found</p>
-    </div>
-    {% endfor %}
-    <div class="pure-u-1">
-        {% if prev_url %}
-        <a href="{{ prev_url }}">Newer conferences</a>
-        {% endif %}
-        {% if next_url %}
-        <a href="{{ next_url }}">Older conferences</a>
-        {% endif %}
-    </div>
+  {% for c in items %}
+  <div class="pure-u-1">
+    <p>{{ c.name }}</p>
+    <p>{{ c.description }}</p>
+    <a
+      class="pure-button"
+      href="{{ url_for('conferences.detail', slug=c.slug, clp=pagination['curr_page']) }}"
+      >Detail</a
+    >
+    <a
+      class="pure-button"
+      href="{{ url_for('conferences.list_proposals', slug=c.slug) }}"
+      >View proposals</a
+    >
+    <a
+      class="pure-button"
+      href="{{ url_for('conferences.list_panels', slug=c.slug) }}"
+      >View panels</a
+    >
+  </div>
+  {% else %}
+  <div class="pure-u-1">
+    <p>No conferences found</p>
+  </div>
+  {% endfor %}
+  <div class="pure-u-1">
+    {% if prev_url %}
+    <a href="{{ prev_url }}">Newer conferences</a>
+    {% endif %} {% if next_url %}
+    <a href="{{ next_url }}">Older conferences</a>
+    {% endif %}
+  </div>
 </div>
-<ul>
-
-</ul>
+<ul></ul>
 {% endblock %}

@@ -1,9 +1,9 @@
 {% for p in items %}
-    <div class="pure-u-1 proposal">
-        {{ p.title }}
-    </div>
+<div class="pure-u-1 proposal" data-id="{{ p.id }}">
+  #{{ p.id }} {{ p.title }}
+</div>
 {% else %}
-    <div class="pure-u-1">
-        <p>No proposal found</p>
-    </div>
+<div class="pure-u-1 proposal not-found">
+  <p>No proposal found</p>
+</div>
 {% endfor %}
