@@ -221,6 +221,7 @@ def import_cots2021_proposals(file_path: Path, worksheet_name: str = None) -> No
                         title=first_line,
                         type=proposal_type,
                         abstract=abstract,
+                        is_deleted=False,
                     )
                 )
             elif proposal_type == "A proposal for a paper panel":

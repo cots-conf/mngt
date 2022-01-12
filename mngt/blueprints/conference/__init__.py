@@ -5,9 +5,10 @@ from math import ceil
 
 import arrow
 from flask import (
-    Blueprint, Response, abort, current_app, redirect, render_template,
+    Blueprint, Response, abort, current_app, flash, redirect, render_template,
     request, url_for
 )
+from flask_login import login_required
 from sqlalchemy import and_, func, or_
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.expression import select
@@ -22,6 +23,7 @@ conference_views = Blueprint(
 
 
 @conference_views.route("/conferences", methods=["GET"])
+@login_required
 def list() -> Response:
     """List conferences."""
     page = request.args.get("page", 1, type=int)
@@ -137,10 +139,12 @@ def list_proposals(slug: str) -> Response:
             select(func.count())
             .select_from(Proposal)
             .where(Proposal.conference_id == conference.id)
+            .where(Proposal.is_deleted == False)  # noqa: E712
         )
         limit_stmt = (
             select(Proposal)
             .where(Proposal.conference_id == conference.id)
+            .where(Proposal.is_deleted == False)  # noqa: E712
             .order_by(Proposal.created.desc())
             .offset((page - 1) * current_app.config["ENTRY_PER_PAGE"])
             .limit(current_app.config["ENTRY_PER_PAGE"])
@@ -234,6 +238,39 @@ def proposal_detail(slug: str, pid: int) -> Response:
             conf_list_page=conf_list_page,
             proposal_list_page=proposal_list_page,
         )
+
+
+@conference_views.route(
+    "/conferences/<slug>/proposals/<int:pid>/delete", methods=["GET", "POST"]
+)
+@login_required
+def proposal_delete(slug: str, pid: int) -> Response:
+    """Return proposal detail."""
+    conf_list_page = request.args.get("clp", 1, type=int)
+    proposal_list_page = request.args.get("plp", 1, type=int)
+
+    engine = get_engine()
+    with Session(engine, future=True) as session:
+        # Get the conference by its slug.
+        conf_get_stmt = select(Conference).where(Conference.slug == slug)
+        conference = session.execute(conf_get_stmt).scalars().first()
+        if conference is None:
+            abort(404)
+
+        proposal_get_stmt = (
+            select(Proposal)
+            .where(Proposal.conference_id == conference.id)
+            .where(Proposal.id == pid)
+        )
+        proposal = session.execute(proposal_get_stmt).scalars().first()
+        if proposal is None:
+            abort(404)
+
+        proposal.is_deleted = True
+        session.commit()
+
+        flash(f"Proposal #{proposal.id} was successfully deleted")
+        return redirect(url_for("conferences.list_proposals", slug=slug, page=proposal_list_page, clp=conf_list_page))
 
 
 @conference_views.route("/conferences/<slug>/panels", methods=["GET", "POST"])
@@ -340,7 +377,6 @@ def panel_detail(slug: str, pid: int) -> Response:
 @conference_views.route("/conferences/<slug>/search", methods=["GET", "POST"])
 def search_proposal(slug: str) -> Response:
     """Return panels matching the search keywords."""
-    # TODO: Allow searching with author name.
     query = request.args.get("q")
     engine = get_engine()
     with Session(engine, future=True) as session:
@@ -367,7 +403,6 @@ def search_proposal(slug: str) -> Response:
             )
             .all()
         )
-        # titles = " ".join([p.title for p in proposals])
 
         return render_template("conference/search_results.html", items=proposals)
 

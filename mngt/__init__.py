@@ -82,6 +82,8 @@ def create_app(test_config: Optional[dict] = None) -> Flask:
 
     app.logger.debug("Finalize the app creation")
 
+    login_manager.login_view = "login.login"
+
     @login_manager.user_loader
     def user_loader(user_id: str) -> User:
         """Load the user object."""

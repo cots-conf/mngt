@@ -38,11 +38,19 @@
         </li>
       </ul>
       <ul class="pure-menu-list" style="float: right">
+        {% if current_user.is_authenticated %}
+        <li class="pure-menu-item">
+          <a href="{{ url_for('login.logout') }}" class="pure-menu-link"
+            >Logout</a
+          >
+        </li>
+        {% else %}
         <li class="pure-menu-item">
           <a href="{{ url_for('login.login') }}" class="pure-menu-link"
             >Login</a
           >
         </li>
+        {% endif %}
       </ul>
     </div>
     {% with messages = get_flashed_messages() %} {% if messages %}

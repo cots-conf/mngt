@@ -40,11 +40,19 @@ content %}
 <div class="pure-g">
   {% for short_title, p in items %}
   <div class="pure-u-1">
-    <p><span>Title: {{ p.short_title }}</span></p>
+    <p>
+      #{{ p.id }} - {{ p.author.first_name }} {{ p.author.last_name }} - {{
+      p.short_title }}
+    </p>
     <a
-      class="pure-button"
+      class="pure-button pure-button-primary"
       href="{{ url_for('conferences.proposal_detail', slug=slug, pid=p.id, plp=pagination['curr_page']) }}"
       >Detail</a
+    >
+    <a
+      class="pure-button"
+      href="{{ url_for('conferences.proposal_delete', slug=slug, pid=p.id, plp=pagination['curr_page']) }}"
+      >Delete</a
     >
   </div>
   {% else %}

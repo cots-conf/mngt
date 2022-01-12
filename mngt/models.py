@@ -1,5 +1,7 @@
 import flask_login
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import (
+    Boolean, Column, DateTime, ForeignKey, Integer, String, Text
+)
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.schema import Table
 
@@ -65,6 +67,8 @@ class Proposal(Base):
     title = Column(String(length=300))
     type = Column(String(length=200))
     abstract = Column(Text)
+
+    is_deleted = Column(Boolean, default=False)
 
     @property
     def short_title(self) -> str:
