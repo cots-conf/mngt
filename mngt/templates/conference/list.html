@@ -2,16 +2,55 @@
 title%}Conferences{% endblock %} {% block content %}
 <div class="uk-flex uk-flex-center">
   <div class="main-content">
-    <p uk-margin>
-      <a
-        href="{{ url_for('conferences.create') }}"
-        class="uk-button uk-button-text"
-        >Create new conference</a
-      >
-    </p>
+    <div class="uk-flex uk-flex-middle uk-margin-top">
+      <div>
+        <a
+          href="{{ url_for('conferences.create') }}"
+          class="uk-button uk-button-text"
+          >Create new conference</a
+        >
+      </div>
+      <div class="uk-width-expand"></div>
+      <div>
+        <div class="uk-inline">
+          <button class="uk-button uk-button-default" type="button">
+            Order by
+          </button>
+          <div uk-dropdown="mode: click">
+            <ul class="uk-nav uk-dropdown-nav">
+              <li class="{{ 'uk-active' if order_by == 'start' }}">
+                <a
+                  href="{{ url_for('conferences.list', page=pagination['curr_page'], order_by='start') }}"
+                  >Start date/time</a
+                >
+              </li>
+              <li class="{{ 'uk-active' if order_by == 'name' }}">
+                <a
+                  href="{{ url_for('conferences.list', page=pagination['curr_page'], order_by='name') }}"
+                  >Name</a
+                >
+              </li>
+              <li class="{{ 'uk-active' if order_by == 'number-of-proposal' }}">
+                <a
+                  href="{{ url_for('conferences.list', page=pagination['curr_page'], order_by='number-of-proposal') }}"
+                  ># Proposals</a
+                >
+              </li>
+              <li class="{{ 'uk-active' if order_by == 'number-of-panels' }}">
+                <a
+                  href="{{ url_for('conferences.list', page=pagination['curr_page'], order_by='number-of-panels') }}"
+                  ># Panels</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <hr />
     {% for c in items %}
-    <article class="uk-article">
+    <article class="uk-article uk-margin-top uk-margin-bottom">
       <h1 class="uk-article-title">{{ c.name }}</h1>
       <p class="uk-article-meta">{{ c.begin }} to {{ c.end }}</p>
       <p>{{ c.description }}</p>

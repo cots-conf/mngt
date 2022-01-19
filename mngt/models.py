@@ -89,8 +89,9 @@ Participation = Table(
     Base.metadata,
     Column("id", Integer, primary_key=True),
     Column("panel_id", Integer, ForeignKey("panel.id")),
-    Column("participant_Id", Integer, ForeignKey("participant.id")),
+    Column("participant_id", Integer, ForeignKey("participant.id")),
     Column("role", String(length=150)),
+    Column("order", Integer),  # Order if the role is speaking, presenting.
 )
 
 
@@ -102,7 +103,7 @@ class Panel(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String(length=200))
     start = Column(DateTime)
-    end = Column(DateTime)
+    duration = Column(Integer)
     url = Column(String(length=4096))
 
     conference_id = Column(Integer, ForeignKey("conference.id"))

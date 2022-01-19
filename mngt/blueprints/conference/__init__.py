@@ -28,17 +28,27 @@ conference_views = Blueprint(
 def list() -> Response:
     """List conferences."""
     page = request.args.get("page", 1, type=int)
+    order_by = request.args.get("order_by", "start", type=str)
 
     engine = get_engine()
 
     with Session(engine, future=True) as session:
         total_stmt = select(func.count()).select_from(Conference)
-        limit_stmt = (
-            select(Conference)
-            .order_by(Conference.begin.asc())
-            .offset((page - 1) * current_app.config["ENTRY_PER_PAGE"])
-            .limit(current_app.config["ENTRY_PER_PAGE"])
-        )
+        limit_stmt = select(Conference)
+        if order_by == "start":
+            limit_stmt = limit_stmt.order_by(Conference.begin.asc())
+        elif order_by == "name":
+            limit_stmt = limit_stmt.order_by(Conference.name.asc())
+        elif order_by == "number-of-proposal":
+            # limit_stmt = limit_stmt.order_by(func.count(Conference.proposals).dsc())
+            pass
+        elif order_by == "number-of-panels":
+            # limit_stmt = limit_stmt.order_by(Conference.panels.dsc())
+            pass
+        else:
+            order_by = "start"  # So we don't pass the user value to the template.
+            limit_stmt = limit_stmt.order_by(Conference.begin.asc())
+        limit_stmt = limit_stmt.offset((page - 1) * current_app.config["ENTRY_PER_PAGE"]).limit(current_app.config["ENTRY_PER_PAGE"])
 
         total = session.execute(total_stmt).scalars().first()
         conferences = session.execute(limit_stmt).scalars().all()
@@ -72,6 +82,7 @@ def list() -> Response:
             pagination=pagination,
             prev_url=prev_url,
             next_url=next_url,
+            order_by=order_by
         )
 
 
@@ -167,7 +178,7 @@ def detail(slug: str) -> Response:
             item=conference,
             begin=begin,
             end=end,
-            proposal_counts=len(conference.proposals),
+            proposal_counts=len([c for c in conference.proposals if not c.is_deleted]),
             panel_counts=len(conference.panels),
         )
 
