@@ -65,7 +65,7 @@ def create_app(test_config: Optional[dict] = None) -> Flask:
     from . import db
     from .blueprints.conference import conference_views
     from .login_views import login_views
-    from .proposal_api import ProposalDetail, ProposalList
+    from .proposal_api import NewPanel, ProposalDetail, ProposalList
 
     api = Api(app, prefix="/api/v1/")
     db.init_app(app)
@@ -77,8 +77,9 @@ def create_app(test_config: Optional[dict] = None) -> Flask:
     app.register_blueprint(conference_views)
 
     # APIs
-    api.add_resource(ProposalDetail, "/proposal/<int:proposal_id>")
-    api.add_resource(ProposalList, "/proposals")
+    api.add_resource(ProposalDetail, "/conferences/<slug>/proposals/<int:proposal_id>")
+    api.add_resource(ProposalList, "/conferences/<slug>/proposals")
+    api.add_resource(NewPanel, "/conferences/<slug>/panels/new")
 
     app.logger.debug("Finalize the app creation")
 

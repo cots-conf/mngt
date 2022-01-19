@@ -1,19 +1,22 @@
 from math import ceil
 
-from flask import current_app, request, url_for
+from flask import abort, current_app, request, url_for
 from flask_restful import Resource
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.expression import select
 
 from .db import get_engine
-from .models import Proposal
+from .models import Conference, Proposal
+from .schemas import NewPanelSchema
+
+# TODO: Add login_required.
 
 
 class ProposalDetail(Resource):
     """Proposal detail endpoint."""
 
-    def get(self, proposal_id: int) -> dict:
+    def get(self, slug: str, proposal_id: int) -> dict:
         """
         Return detail of the proposal.
 
@@ -21,7 +24,11 @@ class ProposalDetail(Resource):
         """
         engine = get_engine()
         with Session(engine, future=True) as session:
-            stmt = select(Proposal).where(Proposal.id == proposal_id)
+            conf = session.query(Conference).filter(Conference.slug == slug).first()
+            if conf is None:
+                abort(404)
+
+            stmt = select(Proposal).where(Proposal.conference_id == conf.id).where(Proposal.id == proposal_id)
             row = session.execute(stmt).scalars().first()
             return {"proposal_id": row.id, "title": row.title, "abstract": row.abstract}
 
@@ -29,15 +36,21 @@ class ProposalDetail(Resource):
 class ProposalList(Resource):
     """Proposal list endpoint."""
 
-    def get(self) -> dict:
+    def get(self, slug: str) -> dict:
         """Return list of proposals."""
         page = request.args.get("page", 1, type=int)
 
         engine = get_engine()
         with Session(engine, future=True) as session:
+            conf = session.query(Conference).filter(Conference.slug == slug).first()
+            if conf is None:
+                abort(404)
+
             total_stmt = select(func.count()).select_from(Proposal)
+            # TODO: Limit the proposal to the conference.
             limit_stmt = (
                 select(Proposal)
+                .where(Proposal.conference_id == conf.id)
                 .order_by(Proposal.created.desc())
                 .offset((page - 1) * current_app.config["ENTRY_PER_PAGE"])
                 .limit(current_app.config["ENTRY_PER_PAGE"])
@@ -58,12 +71,12 @@ class ProposalList(Resource):
                 + 1,  # has_next should be checked before using this value.
             }
             prev_url = (
-                url_for("proposals.list_proposals", page=pagination["prev_num"])
+                url_for("conferences.list_proposals", slug=conf.slug, page=pagination["prev_num"])
                 if pagination["has_prev"]
                 else None
             )
             next_url = (
-                url_for("proposals.list_proposals", page=pagination["next_num"])
+                url_for("conferences.list_proposals", slug=conf.slug, page=pagination["next_num"])
                 if pagination["has_next"]
                 else None
             )
@@ -81,3 +94,22 @@ class ProposalList(Resource):
             "next": next_url,
             "prev": prev_url,
         }
+
+
+class NewPanel(Resource):
+    """Endpoints for panel."""
+
+    def post(self, slug: str) -> str:
+        """Create new panel on the conference."""
+        engine = get_engine()
+        with Session(engine, future=True) as session:
+            conf = session.query(Conference).filter(Conference.slug == slug).first()
+            if conf is None:
+                abort(404)
+
+            raw_data = request.json
+            schema = NewPanelSchema()
+            data = schema.load(raw_data)
+
+            print(data)
+            return "success"

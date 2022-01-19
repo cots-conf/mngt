@@ -1,0 +1,74 @@
+{% extends "base.html" %} {% block title %}Proposals{% endblock %} {% block
+head_end %}
+<style>
+  .proposal-card {
+    max-width: 300px;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="uk-flex uk-flex-center">
+  <div class="main-content">
+    <ul class="uk-breadcrumb">
+      <li>
+        <a href="{{ url_for('conferences.list', page=conf_list_page) }}"
+          >Conferences</a
+        >
+      </li>
+      <li>
+        <a
+          href="{{ url_for('conferences.detail', slug=slug, clp=conf_list_page) }}"
+          >{{ conference.name }}</a
+        >
+      </li>
+      <li><span>Proposals</span></li>
+    </ul>
+    <a
+      class="uk-button uk-button-text"
+      href="{{ url_for('conferences.create_proposal', slug=slug, clp=conf_list_page, plp=pagination['curr_page']) }}"
+      >Create new proposal</a
+    >
+    <hr />
+    <div class="uk-flex-left" uk-grid>
+      {% for short_title, p in items %}
+      <div class="uk-card uk-card-default uk-card-body proposal-card">
+        <h4 class="uk-card-title">
+          <a
+            class="uk-link-heading"
+            href="{{ url_for('conferences.proposal_detail', slug=slug, pid=p.id, plp=pagination['curr_page']) }}"
+            >#{{ p.id }} - {{ p.author.first_name }} {{ p.author.last_name }}</a
+          >
+        </h4>
+        <p>{{ p.short_title }}</p>
+        <div class="uk-grid-small uk-child-width-auto" uk-grid>
+          <div>
+            <a
+              class="uk-button uk-button-text"
+              href="{{ url_for('conferences.proposal_detail', slug=slug, pid=p.id, plp=pagination['curr_page']) }}"
+              >Detail</a
+            >
+          </div>
+          <div>
+            <a
+              class="uk-button uk-button-text"
+              href="{{ url_for('conferences.proposal_delete', slug=slug, pid=p.id, plp=pagination['curr_page']) }}"
+              >Delete</a
+            >
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div class="uk-margin">
+        <p>No proposal found</p>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="uk-margin">
+      {% if prev_url %}
+      <a href="{{ prev_url }}">Newer proposals</a>
+      {% endif %} {% if next_url %}
+      <a href="{{ next_url }}">Older proposals</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

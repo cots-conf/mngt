@@ -1,11 +1,5 @@
-{% extends "base.html" %} {% block title %}Proposals{% endblock %} {% block
-head_end %}
-<style>
-  .proposal-card {
-    max-width: 300px;
-  }
-</style>
-{% endblock %} {% block content %}
+{% extends "base.html" %} {% block title %}Panels{% endblock %} {% block content
+%}
 <div class="uk-flex uk-flex-center">
   <div class="main-content">
     <ul class="uk-breadcrumb">
@@ -20,30 +14,29 @@ head_end %}
           >{{ conference.name }}</a
         >
       </li>
-      <li><span>Proposals</span></li>
+      <li><span>Panels</span></li>
     </ul>
     <a
+      href="{{ url_for('conferences.create_panel', slug=slug) }}"
       class="uk-button uk-button-text"
-      href="{{ url_for('conferences.create_proposal', slug=slug, clp=conf_list_page, plp=pagination['curr_page']) }}"
-      >Create new proposal</a
+      >Create new panel</a
     >
     <hr />
-    <div class="uk-flex-left" uk-grid>
-      {% for short_title, p in items %}
+    <div class="panel-list">
+      {% for p in items %}
       <div class="uk-card uk-card-default uk-card-body proposal-card">
         <h4 class="uk-card-title">
           <a
             class="uk-link-heading"
-            href="{{ url_for('conferences.proposal_detail', slug=slug, pid=p.id, plp=pagination['curr_page']) }}"
-            >#{{ p.id }} - {{ p.author.first_name }} {{ p.author.last_name }}</a
+            href="{{ url_for('conferences.panel_detail', slug=slug, pid=p.id, plp=pagination['curr_page']) }}"
+            >#{{ p.id }} - {{ p.name }} {{ p.start }}</a
           >
         </h4>
-        <p>{{ p.short_title }}</p>
         <div class="uk-grid-small uk-child-width-auto" uk-grid>
           <div>
             <a
               class="uk-button uk-button-text"
-              href="{{ url_for('conferences.proposal_detail', slug=slug, pid=p.id, plp=pagination['curr_page']) }}"
+              href="{{ url_for('conferences.panel_detail', slug=slug, pid=p.id, plp=pagination['curr_page']) }}"
               >Detail</a
             >
           </div>
@@ -57,17 +50,10 @@ head_end %}
         </div>
       </div>
       {% else %}
-      <div class="pure-u-1">
-        <p>No proposal found</p>
+      <div class="pure-u-1 not-found">
+        <p>No panel found</p>
       </div>
       {% endfor %}
-    </div>
-    <div class="pure-u-1">
-      {% if prev_url %}
-      <a href="{{ prev_url }}">Newer proposals</a>
-      {% endif %} {% if next_url %}
-      <a href="{{ next_url }}">Older proposals</a>
-      {% endif %}
     </div>
   </div>
 </div>

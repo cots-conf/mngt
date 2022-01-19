@@ -1,6 +1,6 @@
 """Colection of forms."""
 from flask_wtf import FlaskForm
-from wtforms import DateTimeLocalField, SelectField, StringField
+from wtforms import DateTimeLocalField, IntegerField, SelectField, StringField
 from wtforms.validators import DataRequired
 from wtforms.widgets import TextArea
 
@@ -33,7 +33,9 @@ class NewProposalForm(FlaskForm):
 class NewPanelForm(FlaskForm):
     """Form for new panel."""
 
-    title = StringField("title", validators=[DataRequired()])
+    name = StringField("Name", validators=[DataRequired()])
     start = DateTimeLocalField(
         "Begin date", validators=[DataRequired()], format="%Y-%m-%dT%H:%M"
     )
+    duration = IntegerField("Duration", validators=[DataRequired()])
+    gap = IntegerField("Gap", validators=[DataRequired()])

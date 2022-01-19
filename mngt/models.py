@@ -101,13 +101,16 @@ class Panel(Base):
     __tablename__ = "panel"
 
     id = Column(Integer, primary_key=True)
-    title = Column(String(length=200))
-    start = Column(DateTime)
-    duration = Column(Integer)
-    url = Column(String(length=4096))
-
     conference_id = Column(Integer, ForeignKey("conference.id"))
     conference = relationship("Conference", back_populates="panels")
+    created = Column(DateTime)
+    modified = Column(DateTime)
+
+    name = Column(String(length=200))
+    start = Column(DateTime)
+    duration = Column(Integer)
+    gap = Column(Integer)
+    url = Column(String(length=4096))
 
     participants = relationship(
         "Participant", secondary=Participation, backref="panels"

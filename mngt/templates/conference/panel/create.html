@@ -1,0 +1,70 @@
+{% extends "base.html" %} {% block title %}New panel{% endblock %} {% block
+content %}
+<div class="uk-flex uk-flex-center">
+  <div class="main-content">
+    <ul class="uk-breadcrumb">
+      <li>
+        <a href="{{ url_for('conferences.list', page=conf_list_page) }}"
+          >Conferences</a
+        >
+      </li>
+      <li>
+        <a
+          href="{{ url_for('conferences.detail', slug=slug, clp=conf_list_page) }}"
+          >{{ conference.name }}</a
+        >
+      </li>
+      <li>
+        <a href="{{ url_for('conferences.list_panels', slug=slug) }}">Panels</a>
+      </li>
+      <li><span>New panel</span></li>
+    </ul>
+    <hr />
+    <div class="container">
+      <div class="new-panel">
+        <form
+          class="uk-form-horizontal uk-margin-large"
+          method="POST"
+          action="{{ url_for('conferences.create_panel', slug=slug) }}"
+        >
+          <div class="uk-margin">
+            {{ form.name.label(class_="uk-form-label") }}
+            <div class="uk-form-controls">
+              {{ form.name(class_="uk-input") }}
+            </div>
+          </div>
+
+          <div class="uk-margin">
+            {{ form.start.label(class_="uk-form-label") }}
+            <div class="uk-form-controls">
+              {{ form.start(class_="uk-input") }}
+            </div>
+          </div>
+
+          <div class="uk-margin">
+            {{ form.duration.label(class_="uk-form-label") }}
+            <div class="uk-form-controls">
+              {{ form.duration(class_="uk-input", placeholder="Duration (minutes)") }}
+            </div>
+          </div>
+
+          <div class="uk-margin">
+            {{ form.gap.label(class_="uk-form-label") }}
+            <div class="uk-form-controls">
+              {{ form.gap(class_="uk-input", placeholder="Gap (minutes)") }}
+            </div>
+          </div>
+          <dl class="uk-description-list">
+            <dt>Adding proposals</dt>
+            <dd>You will have a change to add proposals to the panel later.</dd>
+          </dl>
+          {{ form.csrf_token }}
+          <button type="submit" class="uk-button uk-button-primary">
+            Create new panel
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

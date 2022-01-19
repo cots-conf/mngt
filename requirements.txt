@@ -11,3 +11,4 @@ python-dotenv==0.19.2
 Flask==2.0.2
 Flask-WTF==1.0.0
 arrow==1.2.1
+marshmallow==3.14.1
