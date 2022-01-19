@@ -31,6 +31,7 @@ class Conference(Base):
 
     panels = relationship("Panel", back_populates="conference")
     proposals = relationship("Proposal", back_populates="conference")
+    participants = relationship("Participant", back_populates="conference")
 
 
 class Participant(Base):
@@ -43,6 +44,9 @@ class Participant(Base):
     email = Column(String(length=350), unique=True)
     created = Column(DateTime)
     modified = Column(DateTime)
+
+    conference_id = Column(Integer, ForeignKey("conference.id"))
+    conference = relationship("Conference", back_populates="participants")
 
     first_name = Column(String(length=250))
     last_name = Column(String(length=250))

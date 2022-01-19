@@ -1,0 +1,80 @@
+{% extends "base.html" %} {% block title %}New proposal{% endblock %} {% block
+content %}
+<div class="uk-flex uk-flex-center">
+  <div class="main-content">
+    <ul class="uk-breadcrumb">
+      <li>
+        <a href="{{ url_for('conferences.list', page=conf_list_page) }}"
+          >Conferences</a
+        >
+      </li>
+      <li>
+        <a
+          href="{{ url_for('conferences.detail', slug=slug, clp=conf_list_page) }}"
+          >{{ conference.name }}</a
+        >
+      </li>
+      <li>
+        <a
+          href="{{ url_for('conferences.list_proposals', slug=slug, page=proposal_list_page, clp=conf_list_page)  }}"
+          >Proposals</a
+        >
+      </li>
+      <li><span>New proposal</span></li>
+    </ul>
+    <h4>New Proposal</h4>
+    <form
+      class="uk-form-horizontal uk-margin-large"
+      method="POST"
+      action="{{ url_for('conferences.create_proposal', slug=slug, clp=conf_list_page, plp=proposal_list_page) }}"
+    >
+      <div class="uk-margin">
+        {{ form.author_id.label(class_="uk-form-label") }}
+        <div class="uk-form-controls">
+          {{ form.author_id(rows=6, cols=60, class_="uk-select") }}
+        </div>
+      </div>
+
+      <div class="uk-margin">
+        {{ form.title.label(class_="uk-form-label") }}
+        <div class="uk-form-controls">{{ form.title(class_="uk-input") }}</div>
+      </div>
+
+      <div class="uk-margin">
+        {{ form.type.label(class_="uk-form-label") }}
+        <div class="uk-form-controls">{{ form.type(class_="uk-input") }}</div>
+      </div>
+
+      <div class="uk-margin">
+        {{ form.abstract.label(class_="uk-form-label") }}
+        <div class="uk-form-controls">
+          {{ form.abstract(class_="uk-textarea") }}
+        </div>
+      </div>
+      {{ form.csrf_token }}
+      <button type="submit" class="uk-button uk-button-primary">Create</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  window.addEventListener("DOMContentLoaded", (event) => {
+    // Detect change in the author name text box
+    // then query an endpoint for the list of author name and id.
+    //
+    // Once user select the option, store the author id in the hidden
+    // text box, and update the value of the author field to the one.
+    const authorNameTxt = document.getElementById("author_name");
+    console.log("add event listener");
+    authorNameTxt.addEventListener("keyup", (e) => {
+      window.clearTimeout(window.timeoutHandler);
+      window.timeoutHandler = window.setTimeout(() => {
+        console.log(authorNameTxt.value);
+        // Send the request to the endpoint.
+
+        // Display the result.
+      }, 500);
+    });
+  });
+</script>
+{% endblock %}

@@ -1,14 +1,46 @@
-{% extends "base.html" %}
-{% block title %}{{ item.name }}{% endblock %}
-{% block content %}
-    <h4><a href="{{ url_for('conferences.list', page=conf_list_page)  }}">Conferences</a> &gt; {{ item.name }}</h4>
-    <p>{{ begin }} to {{ end }}</p>
-    <hr/>
-    <p>{{ item.description }}</p>
-    <p># Proposals: {{ proposal_counts }}</p>
-    <p># Panels: {{ panel_counts }}</p>
-    <hr/>
-    <a class="pure-button" href="#">Edit</a>
-    <a class="pure-button" href="{{ url_for('conferences.list_proposals', slug=item.slug) }}">View proposals</a>
-    <a class="pure-button" href="{{ url_for('conferences.list_panels', slug=item.slug) }}">View panels</a>
+{% extends "base.html" %} {% block title %}{{ item.name }}{% endblock %} {%
+block content %}
+<div class="uk-flex uk-flex-center">
+  <div class="main-content">
+    <ul class="uk-breadcrumb">
+      <li>
+        <a href="{{ url_for('conferences.list', page=conf_list_page) }}"
+          >Conferences</a
+        >
+      </li>
+      <li><span>{{ item.name }}</span></li>
+    </ul>
+    <article class="uk-article">
+      <h1 class="uk-article-title">{{ item.name }}</h1>
+      <p class="uk-article-meta">{{ item.begin }} to {{ item.end }}</p>
+      <span class="uk-badge"># Proposals: {{ proposal_counts }}</span>
+      <span class="uk-badge"># Panels: {{ panel_counts }}</span>
+      <p>{{ item.description }}</p>
+
+      <div class="uk-grid-small uk-child-width-auto" uk-grid>
+        <div>
+          <a
+            class="uk-button uk-button-text"
+            href="{{ url_for('conferences.edit', slug=item.slug) }}"
+            >Edit</a
+          >
+        </div>
+        <div>
+          <a
+            class="uk-button uk-button-text"
+            href="{{ url_for('conferences.list_proposals', slug=item.slug) }}"
+            >View proposals</a
+          >
+        </div>
+        <div>
+          <a
+            class="uk-button uk-button-text"
+            href="{{ url_for('conferences.list_panels', slug=item.slug) }}"
+            >View panels</a
+          >
+        </div>
+      </div>
+    </article>
+  </div>
+</div>
 {% endblock %}

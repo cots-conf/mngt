@@ -16,6 +16,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 
+# The password is not used.
 _users = {
     "kc555014@ohio.edu": {"password": "secret"},
 }
@@ -198,6 +199,7 @@ def import_cots2021_proposals(file_path: Path, worksheet_name: str = None) -> No
                     affiliation="" if affiliation is None else affiliation,
                     created=datetime.utcnow(),
                     modified=datetime.utcnow(),
+                    conference=cot2021_conf,
                 )
                 participants.append(participant)
                 participant_emails.append(email_address)

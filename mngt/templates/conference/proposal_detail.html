@@ -1,10 +1,46 @@
-{% extends "base.html" %}
-{% block title %}{{ item.title }}{% endblock %}
-{% block content %}
-    <h4><a href="{{ url_for('conferences.list', page=conf_list_page) }}">Conferences</a> &gt; <a href="{{ url_for('conferences.detail', slug=slug, clp=conf_list_page)  }}">{{ conference.name }}</a> &gt; <a href="{{ url_for('conferences.list_proposals', slug=slug, page=proposal_list_page, clp=conf_list_page)  }}">Proposals</a> &gt; {{ item.title }}</h4>
-    <p>{{ item.type }} by {{ item.author.first_name }} {{ item.author.last_name }}</p>
-    <hr/>
-    <p>{{ item.abstract }}</p>
-    <hr/>
-    <a class="pure-button" href="#">Edit</a>
+{% extends "base.html" %} {% block title %}{{ item.title }}{% endblock %} {%
+block content %}
+<div class="uk-flex uk-flex-center">
+  <div class="main-content">
+    <ul class="uk-breadcrumb">
+      <li>
+        <a href="{{ url_for('conferences.list', page=conf_list_page) }}"
+          >Conferences</a
+        >
+      </li>
+      <li>
+        <a
+          href="{{ url_for('conferences.detail', slug=slug, clp=conf_list_page) }}"
+          >{{ conference.name }}</a
+        >
+      </li>
+      <li>
+        <a
+          href="{{ url_for('conferences.list_proposals', slug=slug, page=proposal_list_page, clp=conf_list_page)  }}"
+          >Proposals</a
+        >
+      </li>
+      <li>
+        <span
+          >#{{ item.id }} - {{ item.author.first_name }} {{
+          item.author.last_name }}</span
+        >
+      </li>
+    </ul>
+    <article class="uk-article">
+      <h1 class="uk-article-title">{{ item.short_title }}</h1>
+      <p class="uk-article-meta">
+        {{ item.type }} by {{ item.author.first_name }} {{ item.author.last_name
+        }}
+      </p>
+      <p>{{ item.abstract }}</p>
+
+      <div class="uk-grid-small uk-child-width-auto" uk-grid>
+        <div>
+          <a class="uk-button uk-button-text" href="#">Edit</a>
+        </div>
+      </div>
+    </article>
+  </div>
+</div>
 {% endblock %}

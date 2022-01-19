@@ -16,4 +16,5 @@ FLASK_APP=mngt.wsgi:app flask seed-db
 
 # Import the Excel file of COTS 2021
 FLASK_APP=mngt.wsgi:app flask import-cots2021 ./path/to/excel/file
+FLASK_APP=mngt.wsgi:app flask import-cots2021 ./mngt/tests/cots2021-proposals.xlsx
 ```

@@ -8,59 +8,74 @@
     {% endblock %}
 
     <script src="https://unpkg.com/htmx.org@1.4.1"></script>
+    <!-- UIkit CSS -->
     <link
       rel="stylesheet"
-      href="https://unpkg.com/purecss@2.0.6/build/pure-min.css"
-      integrity="sha384-Uu6IeWbM+gzNVXJcM9XV3SohHtmWE+3VGi496jvgX1jyvDTXfdK+rfZc8C1Aehk5"
-      crossorigin="anonymous"
+      href="https://cdn.jsdelivr.net/npm/uikit@3.10.0/dist/css/uikit.min.css"
     />
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/purecss@2.0.6/build/grids-responsive-min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css"
-    />
+
+    <!-- UIkit JS -->
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.10.0/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.10.0/dist/js/uikit-icons.min.js"></script>
+
+    <style>
+      .main-content {
+        width: 80%;
+      }
+    </style>
+
     {% block head_end %} {% endblock %}
   </head>
   <body>
     {% block body %}
-    <div class="pure-menu pure-menu-horizontal">
-      <a href="{{ url_for('index') }}" class="pure-menu-heading pure-menu-link"
-        >Home</a
-      >
-      <ul class="pure-menu-list">
-        <li class="pure-menu-item">
-          <a href="{{ url_for('conferences.list') }}" class="pure-menu-link"
-            >Conferences</a
-          >
-        </li>
-      </ul>
-      <ul class="pure-menu-list" style="float: right">
-        {% if current_user.is_authenticated %}
-        <li class="pure-menu-item">
-          <a href="{{ url_for('login.logout') }}" class="pure-menu-link"
-            >Logout</a
-          >
-        </li>
-        {% else %}
-        <li class="pure-menu-item">
-          <a href="{{ url_for('login.login') }}" class="pure-menu-link"
-            >Login</a
-          >
-        </li>
-        {% endif %}
-      </ul>
+    <nav class="uk-navbar-container" uk-navbar>
+      <div class="uk-navbar-left">
+        <ul class="uk-navbar-nav">
+          <li class="uk-active">
+            <a href="{{ url_for('index') }}">MNGT</a>
+          </li>
+          <li class="uk-parent">
+            <a href="{{ url_for('conferences.list') }}">Conferences</a>
+          </li>
+          <li><a href=""></a></li>
+        </ul>
+      </div>
+      <div class="uk-navbar-right">
+        <ul class="uk-navbar-nav">
+          {% if current_user.is_authenticated %}
+          <li class="uk-active">
+            <a href="#">Account</a>
+            <div class="uk-navbar-dropdown">
+              <ul class="uk-nav uk-navbar-dropdown-nav">
+                <li class="uk-active">
+                  <a href="{{ url_for('login.logout') }}">Logout</a>
+                </li>
+              </ul>
+            </div>
+          </li>
+          {% else %}
+          <li class="uk-active">
+            <a href="{{ url_for('login.login') }}">Login</a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </nav>
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %}
+    <div class="flashes">
+      {% for category, message in messages %} {% if category == "error" %}
+      <div class="uk-alert-danger" uk-alert>
+        <a class="uk-alert-close" uk-close></a>
+        <p>{{ message }}</p>
+      </div>
+      {% else %}
+      <div class="uk-alert-primary" uk-alert>
+        <a class="uk-alert-close" uk-close></a>
+        <p>{{ message }}</p>
+      </div>
+      {% endif %} {% endfor %}
     </div>
-    {% with messages = get_flashed_messages() %} {% if messages %}
-    <ul class="flashes">
-      {% for message in messages %}
-      <li>{{ message }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %} {% endwith %}
-    <div id="content">{% block content %}{% endblock %}</div>
-    {% endblock %}
+    {% endif %} {% endwith %} {% block content %}{% endblock %} {% endblock %}
   </body>
 </html>

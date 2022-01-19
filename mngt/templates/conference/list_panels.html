@@ -1,99 +1,61 @@
-{% extends "base.html" %} {% block title %}Panels{% endblock %} {% block
-head_end %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.js"></script>
-<script src="https://unpkg.com/htmx.org@1.4.1"></script>
-<link
-  rel="stylesheet"
-  href="https://unpkg.com/purecss@2.0.6/build/pure-min.css"
-  integrity="sha384-Uu6IeWbM+gzNVXJcM9XV3SohHtmWE+3VGi496jvgX1jyvDTXfdK+rfZc8C1Aehk5"
-  crossorigin="anonymous"
-/>
-<link
-  rel="stylesheet"
-  href="https://unpkg.com/purecss@2.0.6/build/grids-responsive-min.css"
-/>
-<link
-  rel="stylesheet"
-  href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css"
-/>
-<style>
-  html {
-    height: 100%;
-  }
-  body {
-    min-height: 100%;
-  }
-  #content {
-    height: 100%;
-  }
-
-  .gu-mirror {
-    position: fixed !important;
-    margin: 0 !important;
-    z-index: 9999 !important;
-    opacity: 0.8;
-    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
-    filter: alpha(opacity=80);
-  }
-  .gu-hide {
-    display: none !important;
-  }
-  .gu-unselectable {
-    -webkit-user-select: none !important;
-    -moz-user-select: none !important;
-    -ms-user-select: none !important;
-    user-select: none !important;
-  }
-  .gu-transit {
-    opacity: 0.2;
-    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
-    filter: alpha(opacity=20);
-  }
-</style>
-{% endblock %} {% block content %}
-<h4>
-  <a href="{{ url_for('conferences.list')  }}">Conferences</a> &gt;
-  <a href="{{ url_for('conferences.detail', slug=slug)  }}"
-    >{{ conference.name }}</a
-  >
-  &gt; Panels
-</h4>
-<a href="{{ url_for('conferences.create_panel', slug=slug) }}"
-  >Create new panel</a
->
-<hr />
-<div class="panel-list">
-  {% for short_title, p in items %}
-  <div class="pure-u-1">
-    <p><span>Title: {{ short_title }}</span></p>
+{% extends "base.html" %} {% block title %}Panels{% endblock %} {% block content
+%}
+<div class="uk-flex uk-flex-center">
+  <div class="main-content">
+    <ul class="uk-breadcrumb">
+      <li>
+        <a href="{{ url_for('conferences.list', page=conf_list_page) }}"
+          >Conferences</a
+        >
+      </li>
+      <li>
+        <a
+          href="{{ url_for('conferences.detail', slug=slug, clp=conf_list_page) }}"
+          >{{ conference.name }}</a
+        >
+      </li>
+      <li><span>Panels</span></li>
+    </ul>
     <a
-      class="pure-button"
-      href="{{ url_for('conferences.proposal_detail', slug=slug, pid=p.id, plp=pagination['curr_page']) }}"
-      >Detail</a
+      href="{{ url_for('conferences.create_panel', slug=slug) }}"
+      class="uk-button uk-button-text"
+      >Create new panel</a
     >
-  </div>
-  {% else %}
-  <div class="pure-u-1 not-found">
-    <p>No panel found</p>
-  </div>
-  {% endfor %}
-</div>
-<script>
-  let panelList = document.querySelector(".panel-list");
-  let drake = dragula([panelList], {
-    invalid: function (el, handle) {
-      // Prevent dragging of the empty result indicator.
-      if (Array.from(el.classList).includes("not-found")) {
-        return true;
-      }
-      return false;
-    },
-  });
+    <hr />
+    <div class="panel-list">
+      {% for short_title, p in items %}
+      <div class="pure-u-1">
+        <p><span>Title: {{ short_title }}</span></p>
+        <a
+          class="pure-button"
+          href="{{ url_for('conferences.proposal_detail', slug=slug, pid=p.id, plp=pagination['curr_page']) }}"
+          >Detail</a
+        >
+      </div>
+      {% else %}
+      <div class="pure-u-1 not-found">
+        <p>No panel found</p>
+      </div>
+      {% endfor %}
+    </div>
+    <script>
+      let panelList = document.querySelector(".panel-list");
+      let drake = dragula([panelList], {
+        invalid: function (el, handle) {
+          // Prevent dragging of the empty result indicator.
+          if (Array.from(el.classList).includes("not-found")) {
+            return true;
+          }
+          return false;
+        },
+      });
 
-  // Low level API.
-  drake.on("remove", function (el, container, source) {
-    console.log("remove");
-    console.log(el);
-  });
-</script>
+      // Low level API.
+      drake.on("remove", function (el, container, source) {
+        console.log("remove");
+        console.log(el);
+      });
+    </script>
+  </div>
+</div>
 {% endblock %}

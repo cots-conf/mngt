@@ -13,4 +13,4 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URI", "")
     AZURE_CLIENT_ID = os.getenv("AZURE_CLIENT_ID", "")
     AZURE_CLIENT_SECRET = os.getenv("AZURE_CLIENT_SECRET", "")
-    ENTRY_PER_PAGE = 5
+    ENTRY_PER_PAGE = 10

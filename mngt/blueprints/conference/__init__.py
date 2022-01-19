@@ -10,11 +10,12 @@ from flask import (
 )
 from flask_login import login_required
 from sqlalchemy import and_, func, or_
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.expression import select
 
 from mngt.db import get_engine, get_short_title
-from mngt.forms import NewConferenceForm
+from mngt.forms import NewConferenceForm, NewProposalForm
 from mngt.models import Conference, Panel, Participant, Proposal
 
 conference_views = Blueprint(
@@ -76,7 +77,7 @@ def list() -> Response:
 
 @conference_views.route("/conferences/new", methods=["GET", "POST"])
 def create() -> Response:
-    """A view for creating new conference."""
+    """Create new conference view."""
     conf_list_page = request.args.get("clp", 1, type=int)
 
     form = NewConferenceForm(request.form)
@@ -86,16 +87,66 @@ def create() -> Response:
         with Session(engine, future=True) as session:
             conf = Conference()
             form.populate_obj(conf)
-            conf.slug = re.sub(r"\s+", "-", conf.name)[:60]
-            session.add(conf)
-            session.commit()
+            conf.slug = re.sub(r"\s+", "-", conf.name.strip())[:60]
+            conf.created = datetime.utcnow()
+            conf.modified = datetime.utcnow()
+
+            try:
+                session.add(conf)
+                session.commit()
+            except IntegrityError:
+                flash("The conference with the same name already exist.", "error")
+                if form.name.errors is None:
+                    form.name.errors = [
+                        "The conference with the same name already exist."
+                    ]
+                else:
+                    form.name.errors.append(
+                        "The conference with the same name already exist."
+                    )
+                return render_template(
+                    "create.html", form=form, conf_list_page=conf_list_page
+                )
+
+            flash(f"Conference #{conf.slug} was successfully created")
             return redirect(url_for("conferences.list"))
     return render_template("create.html", form=form, conf_list_page=conf_list_page)
 
 
+@conference_views.route("/conferences/<slug>/edit", methods=["GET", "POST"])
+def edit(slug: str) -> Response:
+    """Edit conference view."""
+    conf_list_page = request.args.get("clp", 1, type=int)
+
+    if request.method == "GET":
+        engine = get_engine()
+        with Session(engine, future=True) as session:
+            conf = session.query(Conference).filter(Conference.slug == slug).first()
+            print(conf)
+            form = NewConferenceForm(obj=conf)
+
+            return render_template(
+                "edit.html", conference=conf, form=form, conf_list_page=conf_list_page
+            )
+
+    elif request.method == "POST":
+        form = NewConferenceForm(request.form)
+        if form.validate():
+            engine = get_engine()
+            with Session(engine, future=True) as session:
+                conf = session.query(Conference).filter(Conference.slug == slug).first()
+                form.populate_obj(conf)
+                conf.modified = datetime.utcnow()
+
+                session.commit()
+
+                flash(f"Conference #{conf.slug} was successfully modified")
+                return redirect(url_for("conferences.list"))
+
+
 @conference_views.route("/conferences/<slug>")
 def detail(slug: str) -> Response:
-    """A view for conference detail."""
+    """Show detail view of a conference."""
     conf_list_page = request.args.get("clp", 1, type=int)
 
     engine = get_engine()
@@ -200,8 +251,58 @@ def list_proposals(slug: str) -> Response:
 
 @conference_views.route("/conferences/<slug>/proposals/new", methods=["GET", "POST"])
 def create_proposal(slug: str) -> Response:
-    """Create a proposal for the conference `cid`."""
-    return "New proposal."
+    """Create a proposal for the conference `slug`."""
+    conf_list_page = request.args.get("clp", 1, type=int)
+    proposal_list_page = request.args.get("plp", 1, type=int)
+
+    engine = get_engine()
+    with Session(engine, future=True) as session:
+        # Get the conference by its slug.
+        conf_get_stmt = select(Conference).where(Conference.slug == slug)
+        conference = session.execute(conf_get_stmt).scalars().first()
+
+        authors = (
+            session.query(Participant)
+            .filter(Participant.conference_id == conference.id)
+            .all()
+        )
+
+        if conference is None:
+            abort(404)
+
+        form = NewProposalForm(request.form)
+        form.author_id.choices = [
+            (a.id, f"{a.last_name}, {a.first_name}") for a in authors
+        ]
+
+        if request.method == "POST" and form.validate():
+            engine = get_engine()
+            with Session(engine, future=True) as session:
+                proposal = Proposal()
+                form.populate_obj(proposal)
+                proposal.conference_id = conference.id
+                proposal.created = datetime.utcnow()
+                proposal.modified = datetime.utcnow()
+
+                session.add(proposal)
+                session.commit()
+                return redirect(
+                    url_for(
+                        "conferences.list_proposals",
+                        slug=conference.slug,
+                        page=proposal_list_page,
+                        clp=conf_list_page,
+                    )
+                )
+        return render_template(
+            "create_proposal.html",
+            slug=slug,
+            conference=conference,
+            form=form,
+            conf_list_page=conf_list_page,
+            proposal_list_page=proposal_list_page,
+            authors=authors,
+        )
 
 
 @conference_views.route(
@@ -270,7 +371,14 @@ def proposal_delete(slug: str, pid: int) -> Response:
         session.commit()
 
         flash(f"Proposal #{proposal.id} was successfully deleted")
-        return redirect(url_for("conferences.list_proposals", slug=slug, page=proposal_list_page, clp=conf_list_page))
+        return redirect(
+            url_for(
+                "conferences.list_proposals",
+                slug=slug,
+                page=proposal_list_page,
+                clp=conf_list_page,
+            )
+        )
 
 
 @conference_views.route("/conferences/<slug>/panels", methods=["GET", "POST"])
@@ -374,7 +482,7 @@ def panel_detail(slug: str, pid: int) -> Response:
     return "Panel detail."
 
 
-@conference_views.route("/conferences/<slug>/search", methods=["GET", "POST"])
+@conference_views.route("/conferences/<slug>/search_proposal", methods=["GET", "POST"])
 def search_proposal(slug: str) -> Response:
     """Return panels matching the search keywords."""
     query = request.args.get("q")
@@ -404,7 +512,39 @@ def search_proposal(slug: str) -> Response:
             .all()
         )
 
-        return render_template("conference/search_results.html", items=proposals)
+        return render_template(
+            "conference/search_proposal_results.html", items=proposals
+        )
+
+
+@conference_views.route("/conferences/<slug>/search_author", methods=["GET", "POST"])
+def search_author(slug: str) -> Response:
+    """Return panels matching the search keywords."""
+    query = request.args.get("q")
+    engine = get_engine()
+    with Session(engine, future=True) as session:
+        # Get the conference by its slug.
+        conf_get_stmt = select(Conference).where(Conference.slug == slug)
+
+        conference = session.execute(conf_get_stmt).scalars().first()
+        if conference is None:
+            abort(404)
+
+        authors = (
+            session.query(Participant)
+            .filter(
+                and_(
+                    Participant.conference_id == conference.id,
+                    or_(
+                        Participant.first_name.contains(query),
+                        Participant.last_name.contains(query),
+                    ),
+                )
+            )
+            .all()
+        )
+        print(authors)
+        return render_template("conference/search_author_results.html", authors=authors)
 
 
 @conference_views.route("/conferences/<slug>/_debug", methods=["GET"])
