@@ -10,3 +10,4 @@ Flask==2.0.2
 Flask-WTF==1.0.0
 arrow==1.2.1
 marshmallow==3.14.1
+gunicorn==20.1.0
