@@ -1,9 +1,10 @@
-from pip.req import parse_requirements
+from pip._internal.network.session import PipSession
+from pip._internal.req import parse_requirements
 from setuptools import setup
 
-install_reqs = parse_requirements("requirements.txt")
+install_reqs = parse_requirements("requirements.txt", PipSession())
 
-reqs = [str(entry.req) for entry in install_reqs]
+reqs = [str(entry.requirement) for entry in install_reqs]
 
 setup(
     name="cots-mngt",

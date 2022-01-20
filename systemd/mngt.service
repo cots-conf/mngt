@@ -1,0 +1,10 @@
+[Unit]
+Description=Web application server for management of COTS conference
+
+[Service]
+EnvironmentFile=/home/root/projects/mngt/.env
+WorkingDirectory=/home/root/projects/mngt/
+ExecStart=/home/root/.pyenv/versions/3.10.0/bin/flask run
+
+[Install]
+WantedBy=multi-user.target
