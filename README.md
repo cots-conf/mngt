@@ -4,9 +4,30 @@ The deployed versiobn can be visited at [https://mngt.cots-conf.page/](https://m
 
 ## Locally Run
 
-### Requirements
+If you want to run the project locally, there are couple steps to set it up. The major requirements are
 
-- Python 3.10
+1. Python 3.10 which can be installed from [https://www.python.org/](https://www.python.org/)
+2. Register an application on [Azure Developer Portal](https://portal.azure.com) this will allow
+   you to log in with OHIO university account.
+
+### Register for an application in Azure portal
+
+Visit [https://portal.azure.com](https://portal.azure.com) and login with a Microsoft account.
+Search for `app registration`, and create new registration.
+
+Name your application and select `Any Azure AD directory - Multitenant` option. For the redirect URL,
+add `http://localhost:5000/authorize` for a web platform.
+
+![Azure application registration](.images/app-regis.png)
+
+On the side bar, click `Certificate & secrets`, then add new client secret. Name your token and select
+the expiration date. Copy the Value of the secret aside. We will add this to the `.env` file later.
+
+![Azure application secret](.images/app-secret.png)
+
+Once the secret value is copied, go back to overview and copy the `application ID` aside as well.
+
+### Install Python packages
 
 You can install the `mngt` package
 
@@ -21,21 +42,39 @@ or install the required packages directly with `requirements.txt`
 python -m pip install -r requirements.txt
 ```
 
-### Steps
+### Intialize database
+
+First we create tables by running the following command.
 
 ```console
-# Initialize the databse
 FLASK_APP=mngt.wsgi:app flask init-db
+```
 
-# Import the Excel file of COTS 2021 to the database
+We can then import data for COTS 2021 using the following command.
+
+```console
 FLASK_APP=mngt.wsgi:app flask import-cots2021 ./mngt/tests/cots2021-proposals.xlsx
+```
 
-# Run the development serever
+### Create `.env` file
+
+Make a copy of `env.sample` and rename it to `.env`. Then fill in the value for
+`AZURE_CLIENT_ID` and `AZURE_CLIENT_SECRET` using the value of set aside from the previous step.
+
+
+### Running the server
+
+Finally, you can run the server using the following command.
+
+```console
 FLASK_APP=mngt.wsgi:app flask run
 ```
 
+You can now visit `http://localhost:5000`.
 
 ## Deployment
+
+You will need to obtain the `AZURE_CLIENT_ID` and `AZURE_CLIENT_SECRET`. Please visit the above section on how to get them.
 
 ### Requirements
 
