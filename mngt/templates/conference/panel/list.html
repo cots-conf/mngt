@@ -22,36 +22,14 @@
       >Create new panel</a
     >
     <hr />
-    <div class="panel-list">
+    <div>
       {% for p in items %}
-      <div class="uk-card uk-card-default uk-card-body proposal-card">
-        <h4 class="uk-card-title">
-          <a
+      <div class="uk-grid-small" uk-grid>
+        <div class="uk-width-expand" uk-leader><a
             class="uk-link-heading"
             href="{{ url_for('conferences.panel_detail', slug=slug, pid=p.id, plp=pagination['curr_page']) }}"
-            >#{{ p.id }} - {{ p.name }} {{ p.start }}</a
-          >
-        </h4>
-        <div class="uk-grid-small uk-child-width-auto" uk-grid>
-          <div>
-            <a
-              class="uk-button uk-button-text"
-              href="{{ url_for('conferences.panel_detail', slug=slug, pid=p.id, plp=pagination['curr_page']) }}"
-              >Detail</a
-            >
-          </div>
-          <div>
-            <a
-              class="uk-button uk-button-text"
-              href="{{ url_for('conferences.proposal_delete', slug=slug, pid=p.id, plp=pagination['curr_page']) }}"
-              >Delete</a
-            >
-          </div>
-        </div>
-      </div>
-      {% else %}
-      <div class="pure-u-1 not-found">
-        <p>No panel found</p>
+            >{{ p.name }}</a></div>
+        <div>{{ p.start }}</div>
       </div>
       {% endfor %}
     </div>

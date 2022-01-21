@@ -2,7 +2,8 @@ from datetime import datetime
 from math import ceil
 
 from flask import (
-    Response, abort, current_app, redirect, render_template, request, url_for
+    Response, abort, current_app, flash, redirect, render_template, request,
+    url_for
 )
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -49,7 +50,7 @@ def create_panel(slug: str) -> Response:
             session.add(panel)
             session.commit()
 
-            return redirect(url_for("conferences.panel_edit", slug=slug, pid=panel.id))
+            return redirect(url_for("conferences.panel_detail", slug=slug, pid=panel.id))
 
         return render_template(
             "conference/panel/create.html",
@@ -137,7 +138,29 @@ def panel_detail(slug: str, pid: int) -> Response:
 
     TODO: Separate the role for each participant?
     """
-    return f"Conference {slug}: Panel #{pid}'s detail."
+    conf_list_page = request.args.get("clp", 1, type=int)
+
+    engine = get_engine()
+    with Session(engine, future=True) as session:
+        conf_get_stmt = select(Conference).where(Conference.slug == slug)
+        conference = session.execute(conf_get_stmt).scalars().first()
+        if conference is None:
+            abort(404)
+
+        panel_get_stmt = select(Panel).where(Panel.id == pid)
+        panel = session.execute(panel_get_stmt).scalars().first()
+        if panel is None:
+            abort(404)
+
+        return render_template(
+                "conference/panel/detail.html",
+                conference=conference,
+                cid=conference.id,
+                slug=slug,
+                conf_list_page=conf_list_page,
+                panel=panel,
+                utcnow=datetime.utcnow()
+            )
 
 
 @conference_views.route(
@@ -145,4 +168,42 @@ def panel_detail(slug: str, pid: int) -> Response:
 )
 def panel_edit(slug: str, pid: int) -> Response:
     """Return panel detail."""
-    return f"Editing panel #{pid} in conference {slug}."
+    conf_list_page = request.args.get("clp", 1, type=int)
+
+    if request.method == "GET":
+        engine = get_engine()
+        with Session(engine, future=True) as session:
+            conf = session.query(Conference).filter(Conference.slug == slug).first()
+            if conf is None:
+                abort(404)
+
+            panel_get_stmt = select(Panel).where(Panel.id == pid)
+            panel = session.execute(panel_get_stmt).scalars().first()
+            if panel is None:
+                abort(404)
+
+            form = NewPanelForm(obj=panel)
+            return render_template(
+                "conference/panel/edit.html", slug=slug, conference=conf, panel=panel, form=form, conf_list_page=conf_list_page
+            )
+
+    elif request.method == "POST":
+        form = NewPanelForm(request.form)
+        if form.validate():
+            engine = get_engine()
+            with Session(engine, future=True) as session:
+                conf = session.query(Conference).filter(Conference.slug == slug).first()
+                if conf is None:
+                    abort(404)
+
+                panel_get_stmt = select(Panel).where(Panel.id == pid)
+                panel = session.execute(panel_get_stmt).scalars().first()
+                if panel is None:
+                    abort(404)
+
+                form.populate_obj(panel)
+                conf.modified = datetime.utcnow()
+                session.commit()
+
+                flash(f"Panel #{conf.id} was successfully modified")
+                return redirect(url_for("conferences.panel_detail", slug=slug, pid=pid))

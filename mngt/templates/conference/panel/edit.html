@@ -1,140 +1,5 @@
 {% extends "base.html" %} {% block title %}New panel{% endblock %} {% block
-head_end %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.js"></script>
-<script src="https://unpkg.com/htmx.org@1.4.1"></script>
-<style>
-  .gu-mirror {
-    position: fixed !important;
-    margin: 0 !important;
-    z-index: 9999 !important;
-    opacity: 0.8;
-    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
-    filter: alpha(opacity=80);
-  }
-  .gu-hide {
-    display: none !important;
-  }
-  .gu-unselectable {
-    -webkit-user-select: none !important;
-    -moz-user-select: none !important;
-    -ms-user-select: none !important;
-    user-select: none !important;
-  }
-  .gu-transit {
-    opacity: 0.2;
-    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
-    filter: alpha(opacity=20);
-  }
-
-  @media screen and (min-width: 1200px) {
-    .container {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      gap: 10px;
-    }
-
-    .proposal-list {
-      background-color: #e00;
-      width: 600px;
-      height: 760px;
-      overflow-y: scroll;
-    }
-
-    .new-panel-proposal-list {
-      background-color: #0e0;
-      width: 600px;
-      height: 490px;
-      overflow-y: scroll;
-    }
-
-    .proposal {
-      width: 550px;
-      margin: 5px;
-      padding: 10px;
-      background-color: #ccc;
-    }
-
-    .proposal-search form input {
-      width: 600px;
-    }
-  }
-
-  @media screen and (min-width: 800px) and (max-width: 1199px) {
-    .container {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      gap: 10px;
-    }
-
-    .proposal-list {
-      background-color: #e00;
-      width: 400px;
-      height: 760px;
-      overflow-y: scroll;
-    }
-
-    .new-panel-proposal-list {
-      background-color: #0e0;
-      width: 400px;
-      height: 490px;
-      overflow-y: scroll;
-    }
-
-    .proposal {
-      width: 350px;
-      margin: 5px;
-      padding: 10px;
-      background-color: #ccc;
-    }
-
-    .proposal-search form input {
-      width: 400px;
-    }
-  }
-
-  @media screen and (min-width: 100px) and (max-width: 799px) {
-    .container {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-start;
-      gap: 10px;
-    }
-
-    .proposal-list {
-      background-color: #e00;
-      width: 98%;
-      height: 200px;
-      overflow-y: scroll;
-    }
-
-    .new-panel-proposal-list {
-      background-color: #0e0;
-      width: 98%;
-      height: 200px;
-      overflow-y: scroll;
-    }
-
-    .proposal {
-      width: 90%;
-      margin: 5px;
-      padding: 10px;
-      background-color: #ccc;
-    }
-
-    .proposal-search form input {
-      width: 98%;
-    }
-  }
-</style>
-{% endblock %} {% block content %}
+content %}
 <div class="uk-flex uk-flex-center">
   <div class="main-content">
     <ul class="uk-breadcrumb">
@@ -152,132 +17,57 @@ head_end %}
       <li>
         <a href="{{ url_for('conferences.list_panels', slug=slug) }}">Panels</a>
       </li>
-      <li><span>New panel</span></li>
+      <li>
+        <a href="{{ url_for('conferences.panel_detail', slug=slug, pid=panel.id) }}">{{ panel.name }}</a>
+      </li>
+      <li><span>Edit</span></li>
     </ul>
     <hr />
     <div class="container">
-      <div class="proposal-search">
-        <form class="pure-form" onsubmit="return false;">
-          <input
-            type="text"
-            name="q"
-            class="uk-input"
-            placeholder="Search for a proposal ..."
-            hx-get="{{ url_for('conferences.search_proposal', slug=slug) }}"
-            hx-trigger="keyup changed delay:500ms"
-            hx-target="#search-results"
-          />
-        </form>
-        <div id="search-results" class="pure-g proposal-list"></div>
-      </div>
       <div class="new-panel">
         <form
-          class="pure-form pure-form-aligned"
+          class="uk-form-horizontal uk-margin-large"
           method="POST"
-          action="{{ url_for('conferences.create') }}"
+          action="{{ url_for('conferences.panel_edit', slug=slug, pid=panel.id) }}"
         >
-          <fieldset class="uk-fieldset">
-            <legend>Panel Info</legend>
-            <div class="uk-margin">
-              <label for="panel-name" class="uk-form-label">Name:</label>
-              <input
-                name="panel-name"
-                placeholder="Name"
-                type="text"
-                class="uk-input"
-              />
+          <div class="uk-margin">
+            {{ form.name.label(class_="uk-form-label") }}
+            <div class="uk-form-controls">
+              {{ form.name(class_="uk-input") }}
             </div>
-            <div class="uk-margin">
-              <label for="panel-start" class="uk-form-label">Start:</label>
-              <input
-                name="panel-start"
-                placeholder="Start time"
-                type="datetime-local"
-                class="uk-input"
-              />
+          </div>
+
+          <div class="uk-margin">
+            {{ form.start.label(class_="uk-form-label") }}
+            <div class="uk-form-controls">
+              {{ form.start(class_="uk-input") }}
             </div>
-            <div class="uk-margin">
-              <label for="panel-duration" class="uk-form-label"
-                >Duration:</label
-              >
-              <input
-                name="panel-duration"
-                placeholder="Duration (minutes)"
-                type="number"
-                class="uk-input"
-              />
+          </div>
+
+          <div class="uk-margin">
+            {{ form.duration.label(class_="uk-form-label") }}
+            <div class="uk-form-controls">
+              {{ form.duration(class_="uk-input", placeholder="Duration (minutes)") }}
             </div>
-            <div class="uk-margin">
-              <label for="panel-gap" class="uk-form-label">Gap:</label>
-              <input
-                name="panel-gap"
-                placeholder="Gap (minutes)"
-                type="number"
-                class="uk-input"
-              />
+          </div>
+
+          <div class="uk-margin">
+            {{ form.gap.label(class_="uk-form-label") }}
+            <div class="uk-form-controls">
+              {{ form.gap(class_="uk-input", placeholder="Gap (minutes)") }}
             </div>
-            <button type="submit" class="uk-button uk-button-primary">
-              Create new panel
-            </button>
-          </fieldset>
+          </div>
+          <dl class="uk-description-list">
+            <dt>Adding proposals</dt>
+            <dd>You will have a change to add proposals to the panel later.</dd>
+          </dl>
+          {{ form.csrf_token }}
+          <button type="submit" class="uk-button uk-button-primary">
+            Save
+          </button>
         </form>
-        <p>Panel's proposals</p>
-        <small>Drag a proposal to the area below to add it to the panel.</small>
-        <div class="new-panel-proposal-list"></div>
       </div>
     </div>
-    <script>
-      let proposalList = document.querySelector(".proposal-list");
-      let newPanelList = document.querySelector(".new-panel-proposal-list");
-      let drake = dragula([proposalList, newPanelList], {
-        accepts: function (el, target, source, sibling) {
-          // Prevent dropping back to the search result list.
-          if (
-            Array.from(target.classList).includes("proposal-list") &&
-            Array.from(source.classList).includes("new-panel-proposal-list")
-          ) {
-            return false;
-          }
-
-          // Prevent same ID to be dropped into the target.
-          if (
-            Array.from(target.classList).includes("new-panel-proposal-list")
-          ) {
-            let counter = new Map();
-            for (let item of target.children) {
-              if (counter.has(item.dataset.id)) {
-                const oldValue = counter.get(item.dataset.id);
-                counter.set(item.dataset.id, oldValue + 1);
-              } else {
-                counter.set(item.dataset.id, 1);
-              }
-            }
-            if (
-              counter.has(el.dataset.id) &&
-              counter.get(el.dataset.id) !== 1
-            ) {
-              return false;
-            }
-          }
-
-          return true;
-        },
-        removeOnSpill: true, // cannot be used when copy is true.
-        invalid: function (el, handle) {
-          // Prevent dragging of the empty result indicator.
-          if (Array.from(el.classList).includes("not-found")) {
-            return true;
-          }
-          return false;
-        },
-      });
-
-      // Low level API.
-      drake.on("remove", function (el, container, source) {
-        console.log("remove");
-        console.log(el);
-      });
-    </script>
   </div>
 </div>
 {% endblock %}

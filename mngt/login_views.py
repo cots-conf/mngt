@@ -13,9 +13,7 @@ login_views = Blueprint("login", __name__, template_folder="templates")
 @login_views.route("/login")
 def login() -> Response:
     """Login view."""
-    proto = "http"
-    if False:
-        proto = request.headers["X-Forwarded-Proto"]
+    proto = request.headers["X-Forwarded-Proto"]
     redirect_uri = url_for("login.authorize", _external=True, _scheme=proto)
     current_app.logger.debug(f"oauth redirect uri: {redirect_uri}")
     return oauth.azure.authorize_redirect(redirect_uri)
