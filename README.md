@@ -1,6 +1,6 @@
 # mngt - Management Platform
 
-The deployed versiobn can be visited at [https://mngt.cots-conf.page/](https://mngt.cots-conf.page/)
+The deployed version can be visited at [https://mngt.cots-conf.page/](https://mngt.cots-conf.page/)
 
 ## Locally Run
 
@@ -44,7 +44,7 @@ python -m pip install -r requirements.txt
 
 ### Intialize database
 
-First we create tables by running the following command.
+First we create the database file and tables by running the following command.
 
 ```console
 FLASK_APP=mngt.wsgi:app flask init-db
@@ -59,7 +59,7 @@ FLASK_APP=mngt.wsgi:app flask import-cots2021 ./mngt/tests/cots2021-proposals.xl
 ### Create `.env` file
 
 Make a copy of `env.sample` and rename it to `.env`. Then fill in the value for
-`AZURE_CLIENT_ID` and `AZURE_CLIENT_SECRET` using the value of set aside from the previous step.
+`AZURE_CLIENT_ID` and `AZURE_CLIENT_SECRET` using the values from the previous step.
 
 
 ### Running the server
