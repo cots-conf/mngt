@@ -2,9 +2,9 @@
 Description=Web application server for management of COTS conference
 
 [Service]
-EnvironmentFile=/home/root/projects/mngt/.env
-WorkingDirectory=/home/root/projects/mngt/
-ExecStart=/home/root/.pyenv/versions/3.10.0/bin/gunicorn -b localhost:5000 -w mngt.wsgi:app
+EnvironmentFile=/root/projects/mngt/.env
+WorkingDirectory=/root/projects/mngt/
+ExecStart=/root/.pyenv/versions/py3100/bin/gunicorn -b localhost:5000 -w 2 mngt.wsgi:app
 
 [Install]
 WantedBy=multi-user.target
