@@ -89,7 +89,7 @@ def get_engine() -> Engine:
     """
     if "engine" not in g:
         g.engine = create_engine(
-            current_app.config["SQLALCHEMY_DATABASE_URI"], echo=False, future=True
+            current_app.config["SQLALCHEMY_DATABASE_URI"], echo=True, future=True
         )
     return g.engine
 

@@ -1,22 +1,37 @@
-# mngt
+# mngt - Management Platform
 
-Management Platform
+The deployed versiobn can be visited at [https://mngt.cots-conf.page/](https://mngt.cots-conf.page/)
 
-## Run
+## Locally Run
+
+### Requirements
+
+- Python 3.10
+
+You can install the `mngt` package
 
 ```console
-# Run the development serever
-FLASK_APP=mngt.wsgi:app flask run
+# At root directory of the project.
+python -m pip install .
+```
 
+or install the required packages directly with `requirements.txt`
+
+```console
+python -m pip install -r requirements.txt
+```
+
+### Steps
+
+```console
 # Initialize the databse
 FLASK_APP=mngt.wsgi:app flask init-db
 
-# Seed the databse
-FLASK_APP=mngt.wsgi:app flask seed-db
-
-# Import the Excel file of COTS 2021
-FLASK_APP=mngt.wsgi:app flask import-cots2021 ./path/to/excel/file
+# Import the Excel file of COTS 2021 to the database
 FLASK_APP=mngt.wsgi:app flask import-cots2021 ./mngt/tests/cots2021-proposals.xlsx
+
+# Run the development serever
+FLASK_APP=mngt.wsgi:app flask run
 ```
 
 
@@ -29,7 +44,7 @@ FLASK_APP=mngt.wsgi:app flask import-cots2021 ./mngt/tests/cots2021-proposals.xl
 
 ### Steps
 
-Minimal Nginx configuration. This assumes that Cloudflare is providing certificate.
+Minimal Nginx configuration. This assumes that Cloudflare is providing the certificate.
 
 ```plain
 # /etc/nginx/sites-available/mngt
@@ -53,10 +68,10 @@ Deployment steps.
 ```console
 apt update
 
-# web server
+# install web server
 apt install nginx
 
-# python and pyenv
+# install python and pyenv
 sudo apt-get update; sudo apt-get install make build-essential libssl-dev zlib1g-dev \
 libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm \
 libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
@@ -70,16 +85,20 @@ cd mngt
 pyenv local py3100
 pip install -r requirements.txt
 
-# install the service file
+# install the service file and start the service
 cp systemd/mngt.service /etc/systemd/system
 systemctl daemon-reload
 systemctl start mngt
 
-# Create nginx configuration
+# Create nginx configuration using the sample config listed before
+
 
 # Restart/reload nginx
 ln -s /etc/nginx/sites-available/mngt /etc/nginx/sites-enabled
+systemctl restart nginx
 ```
+
+Create tables and seed/import the data
 
 ```console
 # initialize database
